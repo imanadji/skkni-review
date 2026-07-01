@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analisis Integratif Standar Kompetensi HCM - SKKNI & Global</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts for Elegant Academic/Corporate look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel Standalone to parse JSX in single file -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .academic-title {
+      font-family: 'Playfair Display', serif;
+    }
+    /* Custom Print CSS for authentic PDF generation */
+    @media print {
+      body {
+        background-color: white !important;
+        color: black !important;
+        font-size: 12pt !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-full-width {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen antialiased">
+
+  <div id="root"></div>
+
+  <!-- React Application Core Logic -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // =========================================================================
+    // 1. DATA DATABASE - SKKNI 149/2020 (61 Units - CLUSTERED BY 9 FUNGSI KUNCI RESMI)
+    // =========================================================================
+    const skkni149Units = [
+      // FUNGSI KUNCI 1: Perencanaan Sumber Daya Manusia (3 unit)
+      { id: 1, code: "M.70SDM01.001.2", title: "Menyusun Strategi Pengelolaan SDM", cluster: "Perencanaan SDM", subCluster: "Perencanaan Strategis", level: "Utama" },
+      { id: 4, code: "M.70SDM01.004.2", title: "Menyelaraskan Strategi MSDM dengan Strategi Bisnis", cluster: "Perencanaan SDM", subCluster: "Perencanaan Strategis", level: "Utama" },
+      { id: 9, code: "M.70SDM01.009.2", title: "Menyusun Perencanaan Tenaga Kerja (Workforce Planning)", cluster: "Perencanaan SDM", subCluster: "Perencanaan Strategis", level: "Utama" },
+
+      // FUNGSI KUNCI 2: Pengadaan Sumber Daya Manusia (6 unit)
+      { id: 11, code: "M.70SDM01.011.2", title: "Melakukan Proses Rekrutmen Karyawan", cluster: "Pengadaan SDM", subCluster: "Akuisisi Bakat", level: "Utama" },
+      { id: 12, code: "M.70SDM01.012.2", title: "Melakukan Seleksi Penerimaan Karyawan", cluster: "Pengadaan SDM", subCluster: "Akuisisi Bakat", level: "Utama" },
+      { id: 13, code: "M.70SDM01.013.2", title: "Melakukan Penempatan & Orientasi Karyawan", cluster: "Pengadaan SDM", subCluster: "Onboarding", level: "Menengah" },
+      { id: 15, code: "M.70SDM01.015.2", title: "Mengelola Program Employer Branding", cluster: "Pengadaan SDM", subCluster: "Akuisisi Bakat", level: "Utama" },
+      { id: 16, code: "M.70SDM01.016.2", title: "Menyusun Kebutuhan Pengadaan SDM Jangka Pendek", cluster: "Pengadaan SDM", subCluster: "Akuisisi Bakat", level: "Muda" },
+      { id: 17, code: "M.70SDM01.017.2", title: "Melakukan Evaluasi Kelayakan Calon Karyawan", cluster: "Pengadaan SDM", subCluster: "Akuisisi Bakat", level: "Muda" },
+
+      // FUNGSI KUNCI 3: Pengembangan Organisasi (4 unit)
+      { id: 2, code: "M.70SDM01.002.2", title: "Merancang Desain Organisasi", cluster: "Pengembangan Organisasi", subCluster: "Perencanaan Strategis", level: "Utama" },
+      { id: 3, code: "M.70SDM01.003.2", title: "Menyusun Kebijakan MSDM", cluster: "Pengembangan Organisasi", subCluster: "Kebijakan & Kepatuhan", level: "Utama" },
+      { id: 6, code: "M.70SDM01.006.2", title: "Mengelola Perubahan Organisasi (Change Management)", cluster: "Pengembangan Organisasi", subCluster: "Transformasi Organisasi", level: "Utama" },
+      { id: 7, code: "M.70SDM01.007.2", title: "Mengelola Budaya Organisasi", cluster: "Pengembangan Organisasi", subCluster: "Transformasi Organisasi", level: "Utama" },
+
+      // FUNGSI KUNCI 4: Pengembangan Sumber Daya Manusia (12 unit)
+      { id: 5, code: "M.70SDM01.005.2", title: "Merumuskan Strategi Manajemen Bakat (Talent Management)", cluster: "Pengembangan SDM", subCluster: "Pengembangan Bakat", level: "Utama" },
+      { id: 8, code: "M.70SDM01.008.2", title: "Merancang Sistem Manajemen Pengetahuan (Knowledge Management)", cluster: "Pengembangan SDM", subCluster: "Pengembangan Bakat", level: "Utama" },
+      { id: 14, code: "M.70SDM01.014.2", title: "Menyusun Program Suksesi (Succession Planning)", cluster: "Pengembangan SDM", subCluster: "Manajemen Bakat", level: "Utama" },
+      { id: 19, code: "M.70SDM01.019.2", title: "Menganalisis Kebutuhan Pelatihan (TNA)", cluster: "Pengembangan SDM", subCluster: "Pelatihan & Sertifikasi", level: "Utama" },
+      { id: 20, code: "M.70SDM01.020.2", title: "Merancang Program Pembelajaran dan Pengembangan", cluster: "Pengembangan SDM", subCluster: "Pelatihan & Sertifikasi", level: "Utama" },
+      { id: 22, code: "M.70SDM01.022.2", title: "Menyusun Kamus Kompetensi Jabatan", cluster: "Pengembangan SDM", subCluster: "Kompetensi", level: "Utama" },
+      { id: 23, code: "M.70SDM01.023.2", title: "Melakukan Penilaian Kompetensi (Assessment)", cluster: "Pengembangan SDM", subCluster: "Kompetensi", level: "Utama" },
+      { id: 24, code: "M.70SDM01.024.2", title: "Mengelola Jalur Karir Karyawan", cluster: "Pengembangan SDM", subCluster: "Karir & Bakat", level: "Utama" },
+      { id: 25, code: "M.70SDM01.025.2", title: "Mengembangkan Kepemimpinan Organisasi", cluster: "Pengembangan SDM", subCluster: "Karir & Bakat", level: "Utama" },
+      { id: 26, code: "M.70SDM01.026.2", title: "Melakukan Program Coaching & Mentoring", cluster: "Pengembangan SDM", subCluster: "Karir & Bakat", level: "Menengah" },
+      { id: 27, code: "M.70SDM01.027.2", title: "Menyusun Kurikulum Pelatihan Internal", cluster: "Pengembangan SDM", subCluster: "Pelatihan & Sertifikasi", level: "Menengah" },
+      { id: 30, code: "M.70SDM01.030.2", title: "Memandu Proses Belajar Mandiri Berbasis E-Learning", cluster: "Pengembangan SDM", subCluster: "Pelatihan & Sertifikasi", level: "Muda" },
+
+      // FUNGSI KUNCI 5: Manajemen Kinerja (3 unit)
+      { id: 31, code: "M.70SDM01.031.2", title: "Merancang Sistem Manajemen Kinerja", cluster: "Manajemen Kinerja", subCluster: "Kinerja Karyawan", level: "Utama" },
+      { id: 32, code: "M.70SDM01.032.2", title: "Mengelola Penilaian Kinerja Tahunan", cluster: "Manajemen Kinerja", subCluster: "Kinerja Karyawan", level: "Menengah" },
+      { id: 40, code: "M.70SDM01.040.2", title: "Menyusun Kriteria Pemberian Penghargaan Karyawan", cluster: "Manajemen Kinerja", subCluster: "Kinerja Karyawan", level: "Menengah" },
+
+      // FUNGSI KUNCI 6: Remunerasi (6 unit)
+      { id: 33, code: "M.70SDM01.033.2", title: "Menyusun Evaluasi Jabatan (Job Evaluation)", cluster: "Remunerasi", subCluster: "Kompensasi & Benefit", level: "Utama" },
+      { id: 34, code: "M.70SDM01.034.2", title: "Menyusun Struktur dan Skala Upah", cluster: "Remunerasi", subCluster: "Kompensasi & Benefit", level: "Utama" },
+      { id: 35, code: "M.70SDM01.035.2", title: "Mengelola Program Benefit & Kesejahteraan Karyawan", cluster: "Remunerasi", subCluster: "Kompensasi & Benefit", level: "Menengah" },
+      { id: 36, code: "M.70SDM01.036.2", title: "Mengelola Program Insentif dan Pembagian Keuntungan", cluster: "Remunerasi", subCluster: "Kompensasi & Benefit", level: "Utama" },
+      { id: 37, code: "M.70SDM01.037.2", title: "Mengelola Program Retensi Bakat Unggul", cluster: "Remunerasi", subCluster: "Retensi Karyawan", level: "Utama" },
+      { id: 41, code: "M.70SDM01.041.2", title: "Melakukan Evaluasi Skala Remunerasi Pasar", cluster: "Remunerasi", subCluster: "Kompensasi & Benefit", level: "Menengah" },
+
+      // FUNGSI KUNCI 7: Hubungan Industrial (10 unit)
+      { id: 42, code: "M.70SDM01.042.2", title: "Menyusun Peraturan Perusahaan/Perjanjian Kerja", cluster: "Hubungan Industrial", subCluster: "Kepatuhan Hukum", level: "Utama" },
+      { id: 43, code: "M.70SDM01.043.2", title: "Mengelola Penyelesaian Keluh Kesah Karyawan", cluster: "Hubungan Industrial", subCluster: "Mediasi & Konflik", level: "Menengah" },
+      { id: 44, code: "M.70SDM01.044.2", title: "Mengelola Penyelesaian Perselisihan Hubungan Industrial", cluster: "Hubungan Industrial", subCluster: "Mediasi & Konflik", level: "Utama" },
+      { id: 45, code: "M.70SDM01.045.2", title: "Membangun Komunikasi Dua Arah di Tempat Kerja", cluster: "Hubungan Industrial", subCluster: "Budaya Kerja", level: "Menengah" },
+      { id: 46, code: "M.70SDM01.046.2", title: "Mengelola Program Kemitraan Serikat Pekerja", cluster: "Hubungan Industrial", subCluster: "Kemitraan", level: "Utama" },
+      { id: 47, code: "M.70SDM01.047.2", title: "Mengelola Keselamatan dan Kesehatan Kerja (K3) MSDM", cluster: "Hubungan Industrial", subCluster: "Kepatuhan Hukum", level: "Menengah" },
+      { id: 48, code: "M.70SDM01.048.2", title: "Mengelola Pemutus Hubungan Kerja (PHK)", cluster: "Hubungan Industrial", subCluster: "Kepatuhan Hukum", level: "Utama" },
+      { id: 49, code: "M.70SDM01.049.2", title: "Mengelola Perjanjian Kerja Waktu Tertentu (PKWT)", cluster: "Hubungan Industrial", subCluster: "Kepatuhan Hukum", level: "Muda" },
+      { id: 50, code: "M.70SDM01.050.2", title: "Melakukan Sosialisasi Regulasi Ketenagakerjaan Baru", cluster: "Hubungan Industrial", subCluster: "Budaya Kerja", level: "Muda" },
+      { id: 51, code: "M.70SDM01.051.2", title: "Mengelola Hubungan Kelembagaan Eksternal Ketenagakerjaan", cluster: "Hubungan Industrial", subCluster: "Kemitraan", level: "Menengah" },
+
+      // FUNGSI KUNCI 8: Sistem Informasi Pekerja (5 unit)
+      { id: 52, code: "M.70SDM01.052.2", title: "Mengelola Data and Sistem Informasi Kepegawaian (HRIS)", cluster: "Sistem Informasi Pekerja", subCluster: "Administrasi Data", level: "Muda" },
+      { id: 53, code: "M.70SDM01.053.2", title: "Melakukan Layanan Administrasi Ketenagakerjaan", cluster: "Sistem Informasi Pekerja", subCluster: "Administrasi Data", level: "Muda" },
+      { id: 57, code: "M.70SDM01.057.2", title: "Mengelola Kehadiran & Absensi Karyawan", cluster: "Sistem Informasi Pekerja", subCluster: "Administrasi Data", level: "Muda" },
+      { id: 58, code: "M.70SDM01.058.2", title: "Mengelola Klaim Asuransi dan Jaminan Sosial (BPJS)", cluster: "Sistem Informasi Pekerja", subCluster: "Administrasi Data", level: "Muda" },
+      { id: 60, code: "M.70SDM01.060.2", title: "Mengelola Layanan Pengaduan Internal Administrasi", cluster: "Sistem Informasi Pekerja", subCluster: "Administrasi Data", level: "Muda" },
+
+      // FUNGSI KUNCI 9: Layanan Umum Administrasi & Mutu MSDM (12 unit)
+      { id: 10, code: "M.70SDM01.010.2", title: "Mengelola Audit MSDM", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Kebijakan & Kepatuhan", level: "Utama" },
+      { id: 18, code: "M.70SDM01.018.2", title: "Mengelola Offboarding & Exit Interview", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Onboarding", level: "Menengah" },
+      { id: 21, code: "M.70SDM01.021.2", title: "Mengevaluasi Efektivitas Program Pelatihan", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Evaluasi Pelatihan", level: "Menengah" },
+      { id: 28, code: "M.70SDM01.028.2", title: "Mengelola Anggaran Program Pendidikan & Pelatihan", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Evaluasi Pelatihan", level: "Menengah" },
+      { id: 29, code: "M.70SDM01.029.2", title: "Melakukan Evaluasi Terhadap Vendor Penyedia Pelatihan", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Evaluasi Pelatihan", level: "Muda" },
+      { id: 38, code: "M.70SDM01.038.2", title: "Melakukan Rekonsiliasi Penggajian Bulanan", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Administrasi Gaji", level: "Muda" },
+      { id: 39, code: "M.70SDM01.039.2", title: "Mengelola Sistem Lembur dan Kompensasi Tambahan", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Administrasi Gaji", level: "Muda" },
+      { id: 54, code: "M.70SDM01.054.2", title: "Menyusun Anggaran Operasional MSDM", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Keuangan MSDM", level: "Menengah" },
+      { id: 55, code: "M.70SDM01.055.2", title: "Menganalisis Produktivitas Tenaga Kerja", cluster: "Layanan Umum & Mutu MSDM", subCluster: "HR Analytics", level: "Utama" },
+      { id: 56, code: "M.70SDM01.056.2", title: "Melakukan HR Analytics Tingkat Dasar", cluster: "Layanan Umum & Mutu MSDM", subCluster: "HR Analytics", level: "Menengah" },
+      { id: 59, code: "M.70SDM01.059.2", title: "Menyusun Standar Operasional Prosedur (SOP) MSDM", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Kebijakan Internal", level: "Menengah" },
+      { id: 61, code: "M.70SDM01.061.2", title: "Mengelola Masa Persiapan Pensiun Karyawan", cluster: "Layanan Umum & Mutu MSDM", subCluster: "Keuangan MSDM", level: "Menengah" }
+    ];
+
+    // =========================================================================
+    // 2. DATA DATABASE PERBAIKAN - SKKNI 307/2014 (104 UNIT KOMPETENSI LENGKAP - CLUSTERED BY 9 FUNGSI KUNCI RESMI)
+    // =========================================================================
+    const skkni307Units = [
+      // FUNGSI KUNCI 1: Perencanaan Tenaga Kerja (4 unit)
+      { id: 1, code: "M.703070.001.01", title: "Menyusun Rencana Tenaga Kerja Jangka Pendek", cluster: "Perencanaan Tenaga Kerja", subCluster: "Perencanaan", level: "Muda" },
+      { id: 2, code: "M.703070.002.01", title: "Menyusun Rencana Strategis Tenaga Kerja Jangka Panjang", cluster: "Perencanaan Tenaga Kerja", subCluster: "Perencanaan", level: "Utama" },
+      { id: 11, code: "M.703070.011.01", title: "Mengidentifikasi Kebutuhan Jumlah Tenaga Kerja (Manpower)", cluster: "Perencanaan Tenaga Kerja", subCluster: "Perencanaan", level: "Muda" },
+      { id: 12, code: "M.703070.012.01", title: "Melakukan Analisis Beban Kerja (Workload Analysis)", cluster: "Perencanaan Tenaga Kerja", subCluster: "Analisis", level: "Menengah" },
+
+      // FUNGSI KUNCI 2: Pengadaan Tenaga Kerja (12 unit)
+      { id: 5, code: "M.703070.005.01", title: "Menentukan Sumber Rekrutmen Tenaga Kerja", cluster: "Pengadaan Tenaga Kerja", subCluster: "Rekrutmen", level: "Muda" },
+      { id: 6, code: "M.703070.006.01", title: "Melaksanakan Proses Seleksi Calon Karyawan", cluster: "Pengadaan Tenaga Kerja", subCluster: "Seleksi", level: "Muda" },
+      { id: 7, code: "M.703070.007.01", title: "Melaksanakan Proses Onboarding dan Induksi", cluster: "Pengadaan Tenaga Kerja", subCluster: "Induksi", level: "Muda" },
+      { id: 8, code: "M.703070.008.01", title: "Mengelola Program Penempatan Staf", cluster: "Pengadaan Tenaga Kerja", subCluster: "Seleksi", level: "Menengah" },
+      { id: 10, code: "M.703070.010.01", title: "Merumuskan Kebijakan Pengadaan Tenaga Kerja", cluster: "Pengadaan Tenaga Kerja", subCluster: "Kebijakan", level: "Utama" },
+      { id: 14, code: "M.703070.014.01", title: "Merancang Saluran Pemasaran Lowongan Kerja", cluster: "Pengadaan Tenaga Kerja", subCluster: "Rekrutmen", level: "Muda" },
+      { id: 15, code: "M.703070.015.01", title: "Melakukan Skrining Dokumen Lamaran Karyawan", cluster: "Pengadaan Tenaga Kerja", subCluster: "Rekrutmen", level: "Muda" },
+      { id: 16, code: "M.703070.016.01", title: "Menyelenggarakan Wawancara Awal Pelamar Kerja", cluster: "Pengadaan Tenaga Kerja", subCluster: "Seleksi", level: "Muda" },
+      { id: 17, code: "M.703070.017.01", title: "Menyelenggarakan Psikotes Calon Karyawan", cluster: "Pengadaan Tenaga Kerja", subCluster: "Seleksi", level: "Muda" },
+      { id: 18, code: "M.703070.018.01", title: "Menyusun Penawaran Kerja (Job Offer Contract)", cluster: "Pengadaan Tenaga Kerja", subCluster: "Seleksi", level: "Muda" },
+      { id: 20, code: "M.703070.020.01", title: "Melaksanakan Mobilisasi dan Demobilisasi Tenaga Kerja", cluster: "Pengadaan Tenaga Kerja", subCluster: "Induksi", level: "Muda" },
+      { id: 22, code: "M.703070.022.01", title: "Mengelola Program Magang (Internship Program Management)", cluster: "Pengadaan Tenaga Kerja", subCluster: "Induksi", level: "Muda" },
+
+      // FUNGSI KUNCI 3: Pengembangan Organisasi (6 unit)
+      { id: 3, code: "M.703070.003.01", title: "Melakukan Analisis Jabatan (Job Analysis)", cluster: "Pengembangan Organisasi", subCluster: "Analisis Jabatan", level: "Muda" },
+      { id: 4, code: "M.703070.004.01", title: "Menyusun Deskripsi Jabatan (Job Description)", cluster: "Pengembangan Organisasi", subCluster: "Analisis Jabatan", level: "Muda" },
+      { id: 13, code: "M.703070.013.01", title: "Menyusun Kriteria Kualifikasi Jabatan", cluster: "Pengembangan Organisasi", subCluster: "Analisis Jabatan", level: "Muda" },
+      { id: 30, code: "M.703070.030.01", title: "Merancang Desain Struktur Organisasi Sederhana", cluster: "Pengembangan Organisasi", subCluster: "Desain Organisasi", level: "Menengah" },
+      { id: 31, code: "M.703070.031.01", title: "Melaksanakan Program Pengembangan Budaya Perusahaan", cluster: "Pengembangan Organisasi", subCluster: "Desain Organisasi", level: "Menengah" },
+      { id: 46, code: "M.703070.046.01", title: "Melaksanakan Evaluasi Kematangan Budaya Kerja", cluster: "Pengembangan Organisasi", subCluster: "Desain Organisasi", level: "Menengah" },
+
+      // FUNGSI KUNCI 4: Pengembangan Pembelajaran & Manajemen Talenta (21 unit)
+      { id: 23, code: "M.703070.023.01", title: "Mengidentifikasi Kebutuhan Pelatihan Jabatan", cluster: "Pengembangan & Pelatihan", subCluster: "TNA", level: "Muda" },
+      { id: 24, code: "M.703070.024.01", title: "Menyusun Program Pembelajaran Tahunan", cluster: "Pengembangan & Pelatihan", subCluster: "Desain Pelatihan", level: "Menengah" },
+      { id: 25, code: "M.703070.025.01", title: "Melaksanakan Pelatihan Tatap Muka", cluster: "Pengembangan & Pelatihan", subCluster: "Penyelenggaraan", level: "Muda" },
+      { id: 26, code: "M.703070.026.01", title: "Melakukan Evaluasi Reaksi Pelatihan", cluster: "Pengembangan & Pelatihan", subCluster: "Evaluasi", level: "Muda" },
+      { id: 27, code: "M.703070.027.01", title: "Mengukur Dampak Pelatihan terhadap Kinerja", cluster: "Pengembangan & Pelatihan", subCluster: "Evaluasi", level: "Menengah" },
+      { id: 28, code: "M.703070.028.01", title: "Menyusun Standar Kompetensi Jabatan", cluster: "Pengembangan & Pelatihan", subCluster: "Kompetensi", level: "Utama" },
+      { id: 29, code: "M.703070.029.01", title: "Mengelola Program Manajemen Talenta", cluster: "Pengembangan & Pelatihan", subCluster: "Sistem Karir", level: "Utama" },
+      { id: 32, code: "M.703070.032.01", title: "Membuat Kamus Kompetensi Inti Organisasi", cluster: "Pengembangan & Pelatihan", subCluster: "Kompetensi", level: "Utama" },
+      { id: 33, code: "M.703070.033.01", title: "Menyusun Kurikulum Pelatihan Fungsional", cluster: "Pengembangan & Pelatihan", subCluster: "Desain Pelatihan", level: "Menengah" },
+      { id: 34, code: "M.703070.034.01", title: "Mendesain Silabus Pelatihan (Training Syllabus)", cluster: "Pengembangan & Pelatihan", subCluster: "Desain Pelatihan", level: "Muda" },
+      { id: 35, code: "M.703070.035.01", title: "Menyiapkan Materi & Handout Pelatihan", cluster: "Pengembangan & Pelatihan", subCluster: "Desain Pelatihan", level: "Muda" },
+      { id: 36, code: "M.703070.036.01", title: "Memilih dan Mengevaluasi Instruktur Eksternal", cluster: "Pengembangan & Pelatihan", subCluster: "Penyelenggaraan", level: "Muda" },
+      { id: 37, code: "M.703070.037.01", title: "Menyusun Anggaran Biaya Pelatihan Organisasi", cluster: "Pengembangan & Pelatihan", subCluster: "Desain Pelatihan", level: "Menengah" },
+      { id: 38, code: "M.703070.038.01", title: "Mengelola Fasilitas & Sarana Pembelajaran Internal", cluster: "Pengembangan & Pelatihan", subCluster: "Penyelenggaraan", level: "Muda" },
+      { id: 39, code: "M.703070.039.01", title: "Melaksanakan Pelatihan Berbasis Tempat Kerja (OJT)", cluster: "Pengembangan & Pelatihan", subCluster: "Penyelenggaraan", level: "Muda" },
+      { id: 40, code: "M.703070.040.01", title: "Melakukan Pengujian/Asesmen Kompetensi Internal", cluster: "Pengembangan & Pelatihan", subCluster: "Kompetensi", level: "Menengah" },
+      { id: 41, code: "M.703070.041.01", title: "Merancang Jalur Karir Karyawan (Career Path)", cluster: "Pengembangan & Pelatihan", subCluster: "Sistem Karir", level: "Utama" },
+      { id: 42, code: "M.703070.042.01", title: "Melakukan Pendampingan Karir (Career Counseling)", cluster: "Pengembangan & Pelatihan", subCluster: "Sistem Karir", level: "Menengah" },
+      { id: 43, code: "M.703070.043.01", title: "Menyusun Rencana Suksesi Organisasi (Succession Plan)", cluster: "Pengembangan & Pelatihan", subCluster: "Sistem Karir", level: "Utama" },
+      { id: 44, code: "M.703070.044.01", title: "Mengelola Program Kepemimpinan (Leadership)", cluster: "Pengembangan & Pelatihan", subCluster: "Sistem Karir", level: "Utama" },
+      { id: 45, code: "M.703070.045.01", title: "Melaksanakan Program Mentoring Internal Organisasi", cluster: "Pengembangan & Pelatihan", subCluster: "Sistem Karir", level: "Menengah" },
+
+      // FUNGSI KUNCI 5: Manajemen Kinerja (5 unit)
+      { id: 47, code: "M.703070.047.01", title: "Melakukan Penilaian Kinerja Karyawan Operasional", cluster: "Manajemen Kinerja", subCluster: "Penilaian Kinerja", level: "Muda" },
+      { id: 48, code: "M.703070.048.01", title: "Menyusun Key Performance Indicators (KPI)", cluster: "Manajemen Kinerja", subCluster: "Penilaian Kinerja", level: "Menengah" },
+      { id: 55, code: "M.703070.055.01", title: "Menyusun Indikator Sasaran Kinerja Individu", cluster: "Manajemen Kinerja", subCluster: "Penilaian Kinerja", level: "Muda" },
+      { id: 56, code: "M.703070.056.01", title: "Melakukan Kalibrasi Hasil Penilaian Kinerja Karyawan", cluster: "Manajemen Kinerja", subCluster: "Penilaian Kinerja", level: "Menengah" },
+      { id: 64, code: "M.703070.064.01", title: "Menyusun Program Penghargaan Karyawan Berprestasi", cluster: "Manajemen Kinerja", subCluster: "Benefit", level: "Menengah" },
+
+      // FUNGSI KUNCI 6: Manajemen Kompensasi & Kesejahteraan (12 unit)
+      { id: 49, code: "M.703070.049.01", title: "Melaksanakan Evaluasi Jabatan secara Manual", cluster: "Kompensasi & Kesejahteraan", subCluster: "Kompensasi", level: "Menengah" },
+      { id: 50, code: "M.703070.050.01", title: "Menghitung Komponen Upah Pokok Karyawan", cluster: "Kompensasi & Kesejahteraan", subCluster: "Kompensasi", level: "Muda" },
+      { id: 51, code: "M.703070.051.01", title: "Menyusun Struktur Penggajian Organisasi", cluster: "Kompensasi & Kesejahteraan", subCluster: "Kompensasi", level: "Utama" },
+      { id: 52, code: "M.703070.052.01", title: "Mengelola Skema Benefit Kesehatan Karyawan", cluster: "Kompensasi & Kesejahteraan", subCluster: "Benefit", level: "Menengah" },
+      { id: 53, code: "M.703070.053.01", title: "Menganalisis Anggaran Remunerasi Tahunan", cluster: "Kompensasi & Kesejahteraan", subCluster: "Benefit", level: "Utama" },
+      { id: 54, code: "M.703070.054.01", title: "Melakukan Administrasi Insentif dan Bonus Kinerja", cluster: "Kompensasi & Kesejahteraan", subCluster: "Penilaian Kinerja", level: "Muda" },
+      { id: 57, code: "M.703070.057.01", title: "Menyusun Rekomendasi Kenaikan Gaji Berkala", cluster: "Kompensasi & Kesejahteraan", subCluster: "Kompensasi", level: "Menengah" },
+      { id: 58, code: "M.703070.058.01", title: "Melakukan Analisis Jabatan Banding di Pasar", cluster: "Kompensasi & Kesejahteraan", subCluster: "Kompensasi", level: "Menengah" },
+      { id: 59, code: "M.703070.059.01", title: "Mengelola Benefit Non-Finansial Karyawan", cluster: "Kompensasi & Kesejahteraan", subCluster: "Benefit", level: "Menengah" },
+      { id: 60, code: "M.703070.060.01", title: "Merancang Sistem Pengupahan Berbasis Golongan", cluster: "Kompensasi & Kesejahteraan", subCluster: "Kompensasi", level: "Utama" },
+      { id: 61, code: "M.703070.061.01", title: "Menghitung Pajak Penghasilan Pasal 21 Karyawan", cluster: "Kompensasi & Kesejahteraan", subCluster: "Kompensasi", level: "Muda" },
+      { id: 63, code: "M.703070.063.01", title: "Mengelola Program Jaminan Hari Tua Karyawan", cluster: "Kompensasi & Kesejahteraan", subCluster: "Benefit", level: "Muda" },
+
+      // FUNGSI KUNCI 7: Hubungan Industrial (17 unit)
+      { id: 9, code: "M.703070.009.01", title: "Mengelola Pemberhentian Karyawan (Termination)", cluster: "Hubungan Industrial", subCluster: "Termination", level: "Menengah" },
+      { id: 65, code: "M.703070.065.01", title: "Menyusun Draf Peraturan Perusahaan (PP)", cluster: "Hubungan Industrial", subCluster: "Kepatuhan", level: "Menengah" },
+      { id: 66, code: "M.703070.066.01", title: "Melakukan Mediasi Awal Perselisihan Karyawan", cluster: "Hubungan Industrial", subCluster: "Perselisihan", level: "Muda" },
+      { id: 67, code: "M.703070.067.01", title: "Mengurus Administrasi Pendaftaran PKB ke Kemenaker", cluster: "Hubungan Industrial", subCluster: "Kepatuhan", level: "Muda" },
+      { id: 68, code: "M.703070.068.01", title: "Menyelenggarakan Rapat Lembaga Kerja Sama Bipartit", cluster: "Hubungan Industrial", subCluster: "Kemitraan", level: "Menengah" },
+      { id: 69, code: "M.703070.069.01", title: "Mengelola Hubungan Kerja Sama dengan Serikat Pekerja", cluster: "Hubungan Industrial", subCluster: "Kemitraan", level: "Utama" },
+      { id: 70, code: "M.703070.070.01", title: "Menyusun Skema Kesepakatan Bersama PHK Sukarela", cluster: "Hubungan Industrial", subCluster: "Perselisihan", level: "Utama" },
+      { id: 72, code: "M.703070.072.01", title: "Menghadiri Persidangan Arbitrase Hubungan Industrial", cluster: "Hubungan Industrial", subCluster: "Perselisihan", level: "Utama" },
+      { id: 74, code: "M.703070.074.01", title: "Menangani Keluhan & Pengaduan Pelanggaran Kerja", cluster: "Hubungan Industrial", subCluster: "Perselisihan", level: "Muda" },
+      { id: 75, code: "M.703070.075.01", title: "Melakukan Investigasi Pelanggaran Kode Etik", cluster: "Hubungan Industrial", subCluster: "Perselisihan", level: "Menengah" },
+      { id: 76, code: "M.703070.076.01", title: "Menyusun Surat Peringatan & Tindakan Disipliner", cluster: "Hubungan Industrial", subCluster: "Perselisihan", level: "Muda" },
+      { id: 77, code: "M.703070.077.01", title: "Mengurus Proses Tripartit Hubungan Industrial", cluster: "Hubungan Industrial", subCluster: "Kepatuhan", level: "Menengah" },
+      { id: 79, code: "M.703070.079.01", title: "Memfasilitasi Pemilihan Pengurus Serikat Pekerja", cluster: "Hubungan Industrial", subCluster: "Kemitraan", level: "Muda" },
+      { id: 81, code: "M.703070.081.01", title: "Melakukan Advokasi Hukum Ketenagakerjaan Organisasi", cluster: "Hubungan Industrial", subCluster: "Kepatuhan", level: "Utama" },
+      { id: 82, code: "M.703070.082.01", title: "Mengelola Hubungan Dengan Dinas Tenaga Kerja", cluster: "Hubungan Industrial", subCluster: "Kemitraan", level: "Menengah" },
+      { id: 83, code: "M.703070.083.01", title: "Menangani Pemogokan Kerja secara Damai", cluster: "Hubungan Industrial", subCluster: "Perselisihan", level: "Utama" },
+      { id: 84, code: "M.703070.084.01", title: "Menyusun Rencana Mitigasi Risiko Sosial Ketenagakerjaan", cluster: "Hubungan Industrial", subCluster: "Kepatuhan", level: "Utama" },
+
+      // FUNGSI KUNCI 8: Sistem Informasi & Teknologi MSDM (1 unit)
+      { id: 93, code: "M.703070.093.01", title: "Mengelola Sistem Database Kepegawaian Digital", cluster: "Sistem Informasi & Teknologi", subCluster: "Database", level: "Muda" },
+
+      // FUNGSI KUNCI 9: Layanan Administrasi Karyawan & Kepatuhan Hukum (26 unit)
+      { id: 19, code: "M.703070.019.01", title: "Mengelola Pembuatan Perjanjian Kerja Mandiri", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Menengah" },
+      { id: 21, code: "M.703070.021.01", title: "Menyusun Prosedur Mutasi dan Rotasi Jabatan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Menengah" },
+      { id: 62, code: "M.703070.062.01", title: "Melaksanakan Audit Proses Penggajian (Payroll Audit)", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Audit", level: "Menengah" },
+      { id: 71, code: "M.703070.071.01", title: "Mengelola Administrasi Pelaporan Kecelakaan Kerja K3", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "K3", level: "Muda" },
+      { id: 73, code: "M.703070.073.01", title: "Melakukan Sosialisasi Aturan Ketenagakerjaan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Sosialisasi", level: "Muda" },
+      { id: 78, code: "M.703070.078.01", title: "Merancang Panduan Keselamatan & Kesehatan Kerja (K3)", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "K3", level: "Menengah" },
+      { id: 80, code: "M.703070.080.01", title: "Menyusun Laporan Kepatuhan Wajib Lapor Ketenagakerjaan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Kepatuhan", level: "Muda" },
+      { id: 85, code: "M.703070.085.01", title: "Melakukan Input Data Profil Karyawan Baru", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 86, code: "M.703070.086.01", title: "Memelihara Arsip Fisik Dokumen Personalia", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 87, code: "M.703070.087.01", title: "Melakukan Rekapitulasi Absensi Bulanan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 88, code: "M.703070.088.01", title: "Membuat Surat Keterangan Kerja & Surat Keputusan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 89, code: "M.703070.089.01", title: "Mengurus Klaim Administrasi BPJS Ketenagakerjaan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Klaim", level: "Muda" },
+      { id: 90, code: "M.703070.090.01", title: "Mengelola Anggaran Biaya Rumah Tangga SDM", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Jaminan Sosial", level: "Menengah" },
+      { id: 91, code: "M.703070.091.01", title: "Melakukan Audit Administrasi Personalia Sederhana", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Audit", level: "Menengah" },
+      { id: 92, code: "M.703070.092.01", title: "Menyusun Laporan Kegiatan Personalia Tahunan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Audit", level: "Utama" },
+      { id: 94, code: "M.703070.094.01", title: "Melakukan Pembaruan Data Keluarga & Status Pajak", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 95, code: "M.703070.095.01", title: "Mengurus Administrasi Cuti & Izin Kerja Karyawan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 96, code: "M.703070.096.01", title: "Mengelola Klaim Medis & Reimbursement Karyawan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Jaminan Sosial", level: "Muda" },
+      { id: 97, code: "M.703070.097.01", title: "Melakukan Verifikasi Lembur & Perjalanan Dinas", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 98, code: "M.703070.098.01", title: "Melaksanakan Onboarding Logistik Karyawan (ID Card, Laptop)", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 99, code: "M.703070.099.01", title: "Mengurus Administrasi Mutasi dan Promosi Karyawan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 100, code: "M.703070.100.01", title: "Mengelola Masa Persiapan Pensiun Karyawan Administratif", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Jaminan Sosial", level: "Menengah" },
+      { id: 101, code: "M.703070.101.01", title: "Melakukan Rekonsiliasi Data Iuran BPJS Kesehatan bulanan", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Jaminan Sosial", level: "Muda" },
+      { id: 102, code: "M.703070.102.01", title: "Memroses Administrasi Surat Pengunduran Diri (Resign)", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Administrasi", level: "Muda" },
+      { id: 103, code: "M.703070.103.01", title: "Menyelenggarakan Survei Kepuasan Karyawan Terhadap HR", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Audit", level: "Menengah" },
+      { id: 104, code: "M.703070.104.01", title: "Mengelola Laporan Personalia Bulanan Untuk Manajemen", cluster: "Administrasi Karyawan & Kepatuhan", subCluster: "Audit", level: "Utama" }
+    ];
+
+    // =========================================================================
+    // 3. DATA DATABASE PERBAIKAN - RISET HCM GLOBAL (30 Units - TANPA KODE UNIT)
+    // =========================================================================
+    const hcmGlobalUnits = [
+      // STRATEGIC ALIGNMENT & AGILITY (6 unit)
+      { id: 1, title: "Designing Agile Organizational Architecture & Scalability", cluster: "Strategic Alignment & Agility", subCluster: "Organizational Design", level: "Executive" },
+      { id: 2, title: "Formulating Dynamics Agility (Stagility) Strategic Roadmap", cluster: "Strategic Alignment & Agility", subCluster: "Organizational Design", level: "Executive" },
+      { id: 3, title: "Integrating Geopolitical Risk and Macroeconomic Shifts in Workforce Strategy", cluster: "Strategic Alignment & Agility", subCluster: "Strategic Foresight", level: "Executive" },
+      { id: 4, title: "Translating Corporate Value Systems into Human Capital Interventions", cluster: "Strategic Alignment & Agility", subCluster: "Strategic Foresight", level: "Senior Lead" },
+      { id: 5, title: "Architecting Workforce Scenario Planning under Extreme Volatility", cluster: "Strategic Alignment & Agility", subCluster: "Strategic Foresight", level: "Senior Lead" },
+      { id: 6, title: "Managing Cross-Border Talent Mobility & Gig Workforce Integration", cluster: "Strategic Alignment & Agility", subCluster: "Global Talent", level: "Lead" },
+
+      // DIGITAL TRANSFORMATION & TECH ENABLEMENT (6 unit)
+      { id: 7, title: "Implementing Generative AI Tools in HR Workflows", cluster: "Digital Transformation & Tech", subCluster: "AI & Automation", level: "Lead" },
+      { id: 8, title: "Establishing Digital Trust Protocols & Ethical AI Frameworks for Employees", cluster: "Digital Transformation & Tech", subCluster: "AI & Automation", level: "Senior Lead" },
+      { id: 9, title: "Deploying Advanced Predictive People Analytics Models", cluster: "Digital Transformation & Tech", subCluster: "Data Analytics", level: "Lead" },
+      { id: 10, title: "Architecting Unified Human Capital Management Technology Platforms (SaaS)", cluster: "Digital Transformation & Tech", subCluster: "HRIS Integration", level: "Senior Lead" },
+      { id: 11, title: "Facilitating Digital Culture Adoption & Tech Literacy Bootcamps", cluster: "Digital Transformation & Tech", subCluster: "HRIS Integration", level: "Specialist" },
+      { id: 12, title: "Designing Dynamic Self-Service Employee Portals using Conversational UI", cluster: "Digital Transformation & Tech", subCluster: "AI & Automation", level: "Specialist" },
+
+      // CULTURE DEBT & STABILITY (6 unit)
+      { id: 13, title: "Diagnosing, Auditing, and Preventing Organizational Culture Debt", cluster: "Culture & Stability", subCluster: "Culture Debt Management", level: "Executive" },
+      { id: 14, title: "Fostering Psychological Safety & High-Trust Remote Workspace", cluster: "Culture & Stability", subCluster: "Psychological Safety", level: "Lead" },
+      { id: 15, title: "Mitigating Burnout through Intelligent Workload Redistribution Protocols", cluster: "Culture & Stability", subCluster: "Psychological Safety", level: "Specialist" },
+      { id: 16, title: "Structuring Adaptive Change Communications during Disruptive Transformations", cluster: "Culture & Stability", subCluster: "Change Enablement", level: "Lead" },
+      { id: 17, title: "Cultivating Inclusive Workspace Foundations: Diversity, Equity & Inclusion (DEI)", cluster: "Culture & Stability", subCluster: "Change Enablement", level: "Lead" },
+      { id: 18, title: "Resolving Socio-Cultural Frictions in Multicultural Organizations", cluster: "Culture & Stability", subCluster: "Culture Debt Management", level: "Specialist" },
+
+      // HUMAN-CENTRIC WELL-BEING & ESG (6 unit)
+      { id: 19, title: "Formulating ESG Strategy Integration in Human Capital Operations", cluster: "Human-Centricity & ESG", subCluster: "ESG Integration", level: "Executive" },
+      { id: 20, title: "Designing Holistic Preventive Mental and Physical Well-being Ecosystems", cluster: "Human-Centricity & ESG", subCluster: "Well-being Infrastructure", level: "Senior Lead" },
+      { id: 21, title: "Establishing Employee-First Flexibility and Async Work Principles", cluster: "Human-Centricity & ESG", subCluster: "Well-being Infrastructure", level: "Lead" },
+      { id: 22, title: "Auditing Labor Exploitation risks across Global Supply Chain Operations", cluster: "Human-Centricity & ESG", subCluster: "ESG Integration", level: "Senior Lead" },
+      { id: 23, title: "Managing Eco-Friendly Office Frameworks and Green HR Practices", cluster: "Human-Centricity & ESG", subCluster: "ESG Integration", level: "Specialist" },
+      { id: 24, title: "Formulating Employee Voice Channels & Participatory Governance Networks", cluster: "Human-Centricity & ESG", subCluster: "Well-being Infrastructure", level: "Lead" },
+
+      // LEADERSHIP DEVELOPMENT & EXCELLENCE (6 unit)
+      { id: 25, title: "Developing Co-Leadership Frameworks for Decentralized Teams", cluster: "Leadership & Learning", subCluster: "Leadership Architecture", level: "Executive" },
+      { id: 26, title: "Nurturing Continuous Learning Mindsets (Reskilling/Upskilling Pathways)", cluster: "Leadership & Learning", subCluster: "Learning Science", level: "Lead" },
+      { id: 27, title: "Structuring AI-Driven Personalized Mentoring Systems at Scale", cluster: "Leadership & Learning", subCluster: "Learning Science", level: "Lead" },
+      { id: 28, title: "Measuring ROI of Leadership Interventions through Strategic KPIs", cluster: "Leadership & Learning", subCluster: "Leadership Architecture", level: "Senior Lead" },
+      { id: 29, title: "Conducting Executive Presence coaching & Empathic Communication Workshops", cluster: "Leadership & Learning", subCluster: "Leadership Architecture", level: "Specialist" },
+      { id: 30, title: "Fostering Transdisciplinary Talent Ecosystems for Next-Gen Disruptions", cluster: "Leadership & Learning", subCluster: "Learning Science", level: "Senior Lead" }
+    ];
+
+    // ==========================================
+    // 4. DATA DEFAULT - PROPOSED COMPETENCIES (Usulan)
+    // ==========================================
+    const defaultProposedCompetencies = [
+      {
+        id: 1,
+        code: "USUL.HCM.001.1",
+        title: "Perancangan Arsitektur Organisasi berbasis Stagilitas (Stabilitas Dinamis) & Agile Scale-Up",
+        cluster: "Strategic Agility & Alignment",
+        level: "Strategic Lead",
+        description: "Mampu menyelaraskan stabilitas struktur operasional dengan ketangkasan rekonfigurasi peran kerja secara instan guna menyerap guncangan disrupsi pasar dan teknologi tanpa merusak core values.",
+        rationale: "Menjembatani keterbatasan SKKNI 149/2020 yang belum mencakup konsep stabilitas dinamis (stagility) untuk menyikapi disrupsi eksponensial global berdasarkan Riset HCM Global."
+      },
+      {
+        id: 2,
+        code: "USUL.HCM.002.1",
+        title: "Implementasi Kecerdasan Buatan (Generative AI) dalam Automasi Proses Layanan MSDM",
+        cluster: "Digital & Tech Enablement",
+        level: "Lead / Specialist",
+        description: "Mampu mengidentifikasi, mengintegrasikan, dan mengevaluasi penggunaan AI generatif dalam proses penyusunan draf kebijakan, otomasi skrining kandidat, dan chatbot layanan mandiri karyawan.",
+        rationale: "SKKNI lama hanya fokus pada dasar-dasar HRIS konvensional. Kompetensi ini sangat krusial untuk efisiensi biaya operasional (OPEX) di era kecerdasan buatan."
+      },
+      {
+        id: 3,
+        code: "USUL.HCM.003.1",
+        title: "Mitigasi Utang Budaya (Cultural Debt) & Manajemen Kepercayaan Digital (Digital Trust) Organisasi",
+        cluster: "Culture & Stability",
+        level: "Strategic Lead",
+        description: "Mampu mendiagnosis akumulasi utang budaya akibat perubahan struktur yang terlalu cepat, serta menyusun protokol kepatuhan etika data karyawan guna membangun kepercayaan digital yang kokoh.",
+        rationale: "Riset HCM Global mensoroti bahwa perubahan teknologi instan sering meninggalkan utang budaya dan penurunan rasa percaya karyawan. Unit ini memitigasi risiko retensi pasca-transformasi."
+      },
+      {
+        id: 4,
+        code: "USUL.HCM.004.1",
+        title: "Analisis Kebutuhan Pelatihan dan Jalur Pembelajaran Personal berbasis Sains Pembelajaran Modern",
+        cluster: "Learning Science & Development",
+        level: "Lead",
+        description: "Mampu merumuskan kurikulum mikro (micro-learning) dan jalur pembelajaran yang adaptif sesuai preferensi kognitif individu karyawan untuk mempercepat proses upskilling dan reskilling.",
+        rationale: "Menggantikan TNA klasikal di SKKNI 307/2014 menjadi pola pembelajaran dinamis yang berbasis pada kecepatan asimilasi pengetahuan modern."
+      },
+      {
+        id: 5,
+        code: "USUL.HCM.005.1",
+        title: "Penyusunan Kebijakan Kesejahteraan Holistik, Kesehatan Psikososial, & Anti-Burnout",
+        cluster: "Human Centicity & ESG",
+        level: "Lead",
+        description: "Mampu merancang ekosistem preventif kesehatan mental dan manajemen beban kerja terdistribusi yang menjaga produktivitas prima sekaligus menurunkan tingkat stress kerja karyawan.",
+        rationale: "Menyelaraskan regulasi ketenagakerjaan normatif di Indonesia dengan tuntutan global terkait jaminan kesehatan mental dan keselamatan psikososial di tempat kerja."
+      },
+      {
+        id: 6,
+        code: "USUL.HCM.006.1",
+        title: "Integrasi Kriteria Keberlanjutan Lingkungan, Sosial, & Tata Kelola (ESG) dalam Budaya Kerja",
+        cluster: "Human Centricity & ESG",
+        level: "Strategic Lead",
+        description: "Mampu merumuskan indikator keberlanjutan hijau (Green HR), mengaudit risiko eksploitasi kerja di rantai pasok, serta membangun keanekaragaman, kesetaraan, dan inklusi (DEI) di organisasi.",
+        rationale: "ESG kini menjadi metrik valuasi korporasi global yang wajib difasilitasi oleh bidang Human Capital, sesuatu yang belum tersentuh di SKKNI 2014 maupun 2020."
+      }
+    ];
+
+    // ==========================================
+    // 5. REUSABLE COMPONENTS & UTILITIES
+    // ==========================================
+
+    // Dynamic Radial / Spider Chart Component written in pure React + SVG
+    const RadarChart = ({ data, title }) => {
+      const keys = Object.keys(data);
+      const values = Object.values(data);
+      const maxVal = Math.max(...values, 1);
+      const totalAxes = keys.length;
+      
+      const width = 360;
+      const height = 360;
+      const cx = width / 2;
+      const cy = height / 2;
+      const r = 100; // Adjusted slightly for label layout breathing room
+
+      // Concentric rings coordinate calculations
+      const levels = [0.25, 0.5, 0.75, 1];
+      const ringPolygons = levels.map((lvl) => {
+        return keys.map((_, i) => {
+          const angle = (i * 2 * Math.PI) / totalAxes - Math.PI / 2;
+          const x = cx + r * lvl * Math.cos(angle);
+          const y = cy + r * lvl * Math.sin(angle);
+          return `${x},${y}`;
+        }).join(" ");
+      });
+
+      // Actual Data polygon coordinates
+      const dataPoints = keys.map((key, i) => {
+        const val = data[key];
+        const factor = (val / maxVal) * r;
+        const angle = (i * 2 * Math.PI) / totalAxes - Math.PI / 2;
+        const x = cx + factor * Math.cos(angle);
+        const y = cy + factor * Math.sin(angle);
+        return { x, y, value: val, label: key, angle };
+      });
+
+      const polygonStr = dataPoints.map(p => `${p.x},${p.y}`).join(" ");
+
+      return (
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center">
+          <h4 class="text-xs font-bold text-slate-700 mb-4 text-center tracking-wider uppercase">{title}</h4>
+          <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} class="max-w-full h-auto">
+            {/* Grid concentric polygons */}
+            {ringPolygons.map((pts, idx) => (
+              <polygon 
+                key={idx} 
+                points={pts} 
+                fill="none" 
+                stroke="#e2e8f0" 
+                strokeWidth="1" 
+                strokeDasharray={idx === 3 ? "none" : "3,3"}
+              />
+            ))}
+
+            {/* Grid Radial Axis Lines */}
+            {keys.map((_, i) => {
+              const angle = (i * 2 * Math.PI) / totalAxes - Math.PI / 2;
+              const x2 = cx + r * Math.cos(angle);
+              const y2 = cy + r * Math.sin(angle);
+              return (
+                <line 
+                  key={i} 
+                  x1={cx} 
+                  y1={cy} 
+                  x2={x2} 
+                  y2={y2} 
+                  stroke="#cbd5e1" 
+                  strokeWidth="1" 
+                />
+              );
+            })}
+
+            {/* Actual Data Fill Area */}
+            <polygon 
+              points={polygonStr} 
+              fill="rgba(99, 102, 241, 0.15)" 
+              stroke="#6366f1" 
+              strokeWidth="2.5" 
+              class="transition-all duration-500 ease-in-out"
+            />
+
+            {/* Vertices marker circles */}
+            {dataPoints.map((pt, i) => (
+              <g key={i}>
+                <circle 
+                  cx={pt.x} 
+                  cy={pt.y} 
+                  r="3.5" 
+                  fill="#ffffff" 
+                  stroke="#4f46e5" 
+                  strokeWidth="2.5"
+                />
+                <circle 
+                  cx={pt.x} 
+                  cy={pt.y} 
+                  r="8" 
+                  fill="transparent" 
+                  class="cursor-pointer group"
+                />
+              </g>
+            ))}
+
+            {/* Dynamic Labels */}
+            {dataPoints.map((pt, i) => {
+              const labelDist = r + 22;
+              const lx = cx + labelDist * Math.cos(pt.angle);
+              const ly = cy + labelDist * Math.sin(pt.angle);
+              
+              let textAnchor = "middle";
+              if (Math.cos(pt.angle) > 0.1) textAnchor = "start";
+              else if (Math.cos(pt.angle) < -0.1) textAnchor = "end";
+
+              return (
+                <text 
+                  key={i} 
+                  x={lx} 
+                  y={ly + 4}
+                  fontSize="8.5px" 
+                  fontWeight="700"
+                  fill="#475569" 
+                  textAnchor={textAnchor}
+                  class="select-none tracking-tight font-sans"
+                >
+                  {pt.label.length > 20 ? `${pt.label.substring(0, 18)}...` : pt.label} ({pt.value})
+                </text>
+              );
+            })}
+          </svg>
+        </div>
+      );
+    };
+
+    // Helper functions for CSV export
+    const convertToCSV = (data) => {
+      const headers = Object.keys(data[0]).join(",");
+      const rows = data.map(item => {
+        return Object.values(item).map(val => {
+          let str = String(val).replace(/"/g, '""');
+          if (str.includes(",") || str.includes("\n") || str.includes('"')) {
+            str = `"${str}"`;
+          }
+          return str;
+        }).join(",");
+      });
+      return [headers, ...rows].join("\n");
+    };
+
+    const triggerDownloadCSV = (csvContent, filename) => {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    };
+
+
+    // ==========================================
+    // 6. PASSWORD LOCK SCREEN COMPONENT
+    // ==========================================
+    const LockScreen = ({ onAccessGranted }) => {
+      const [password, setPassword] = useState("");
+      const [error, setError] = useState("");
+      const [currentMonthName, setCurrentMonthName] = useState("");
+      const [currentMonthNum, setCurrentMonthNum] = useState("");
+
+      useEffect(() => {
+        const months = [
+          "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+          "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+        const date = new Date();
+        const mIndex = date.getMonth(); // 0-11
+        const mNum = (mIndex + 1).toString().padStart(2, '0');
+        
+        setCurrentMonthName(months[mIndex]);
+        setCurrentMonthNum(mNum);
+      }, []);
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const expectedPassword = `Skkni-${currentMonthNum}`;
+        
+        if (password.trim() === expectedPassword) {
+          setError("");
+          onAccessGranted();
+        } else {
+          setError(`Akses Ditolak! Kata sandi salah.`);
+        }
+      };
+
+      return (
+        <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 px-4 py-12 relative overflow-hidden">
+          {/* Futuristic background glows */}
+          <div class="absolute w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -top-12 -left-12"></div>
+          <div class="absolute w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -bottom-12 -right-12"></div>
+
+          <div class="max-w-md w-full bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl border border-slate-800 shadow-2xl relative z-10">
+            <div class="text-center mb-8">
+              <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h2 class="text-2xl font-bold text-white tracking-tight">Portal Akses Kompetensi</h2>
+              <p class="text-slate-400 text-sm mt-2">Sistem Integratif Standardisasi & Rekomendasi Human Capital</p>
+            </div>
+
+            <div class="bg-indigo-950/40 border border-indigo-800/50 rounded-2xl p-4 mb-6">
+              <div class="flex items-start space-x-3">
+                <svg class="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider">Aplikasi Kajian SKKNI</h4>
+                  <p class="text-slate-300 text-xs mt-1 leading-relaxed">
+                    Sandi Hubungi Pengembang. Saat ini App diakses Bulan <span class="font-bold text-indigo-200">{currentMonthName}</span>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} class="space-y-5">
+              <div>
+                <label class="block text-slate-300 text-xs font-semibold mb-2 uppercase tracking-wider">Masukkan Kata Sandi</label>
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="----------"
+                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-mono"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div class="bg-red-950/50 border border-red-800/50 text-red-200 text-xs rounded-xl p-3 flex items-start space-x-2">
+                  <svg class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold py-3.5 px-4 rounded-xl transition-all hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]"
+              >
+                Masuk ke Dashboard
+              </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+              <p class="text-xs text-slate-500 font-bold">Developed by Iman N Bajuasijadji</p>
+              <p class="text-[10px] text-slate-600 mt-1">Direktorat Standardisasi Kompetensi Kerja & SDM Global © 2026</p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+
+    // ==========================================
+    // 7. MAIN DASHBOARD APPLICATION WRAPPER
+    // ==========================================
+    const App = () => {
+      // Security state (unauthenticated by default; resets immediately on reload/refresh)
+      const [isAuthenticated, setIsAuthenticated] = useState(false);
+      const [currentPage, setCurrentPage] = useState("dashboard");
+
+      // Custom Metadata State for Authoring / Reporting (editable dynamically)
+      const [namaPenyusun, setNamaPenyusun] = useState(() => {
+        const saved = localStorage.getItem("skkni_meta_penyusun");
+        return saved ? saved : "Triwinarno";
+      });
+
+      const [namaOrganisasi, setNamaOrganisasi] = useState(() => {
+        const saved = localStorage.getItem("skkni_meta_organisasi");
+        return saved ? saved : "Sekjen Forum";
+      });
+
+      // Editable "Mengesahkan" Signature Metadata (State and default values)
+      const [namaPengesah, setNamaPengesah] = useState(() => {
+        const saved = localStorage.getItem("skkni_meta_pengesah");
+        return saved ? saved : "Dinarwulan Sutoto";
+      });
+
+      const [jabatanPengesah, setJabatanPengesah] = useState(() => {
+        const saved = localStorage.getItem("skkni_meta_jabatan_pengesah");
+        return saved ? saved : "Ketua Forum LSP MSDM";
+      });
+
+      // Proposed Units state loaded from local storage or fallback to defaults
+      const [proposedUnits, setProposedUnits] = useState(() => {
+        const saved = localStorage.getItem("skkni_usulan_kompetensi");
+        return saved ? JSON.parse(saved) : defaultProposedCompetencies;
+      });
+
+      // Excel-like Expand/Collapse state management for Groupings
+      const [expanded149, setExpanded149] = useState({});
+      const [expanded307, setExpanded307] = useState({});
+      const [expandedGlobal, setExpandedGlobal] = useState({});
+
+      // Search filters for tables
+      const [search149, setSearch149] = useState("");
+      const [search307, setSearch307] = useState("");
+      const [searchGlobal, setSearchGlobal] = useState("");
+
+      // Editor States for Usulan Page
+      const [editingUnit, setEditingUnit] = useState(null);
+      const [showAddForm, setShowAddForm] = useState(false);
+      const [formData, setFormData] = useState({ code: "", title: "", cluster: "", level: "", description: "", rationale: "" });
+      const [toastMessage, setToastMessage] = useState("");
+
+      // Save custom reporting metadata to localStorage
+      const handleSaveMetadata = (penyusun, organisasi) => {
+        setNamaPenyusun(penyusun);
+        setNamaOrganisasi(organisasi);
+        localStorage.setItem("skkni_meta_penyusun", penyusun);
+        localStorage.setItem("skkni_meta_organisasi", organisasi);
+        triggerToast("Identitas Penyusun & Organisasi berhasil disimpan!");
+      };
+
+      // Save custom pengesahan signature metadata to localStorage
+      const handleSaveSignatureMetadata = (pengesah, jabatan) => {
+        setNamaPengesah(pengesah);
+        setJabatanPengesah(jabatan);
+        localStorage.setItem("skkni_meta_pengesah", pengesah);
+        localStorage.setItem("skkni_meta_jabatan_pengesah", jabatan);
+        triggerToast("Identitas Pengesah berhasil disimpan!");
+      };
+
+      // Trigger automatic Toast notification helper
+      const triggerToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(""), 4000);
+      };
+
+      // Reset proposed units to system defaults
+      const handleResetToDefault = () => {
+        if (window.confirm("Apakah Anda yakin ingin menyetel ulang data usulan ke data standar rekomendasi awal?")) {
+          setProposedUnits(defaultProposedCompetencies);
+          localStorage.setItem("skkni_usulan_kompetensi", JSON.stringify(defaultProposedCompetencies));
+          triggerToast("Data usulan berhasil disetel ulang ke rekomendasi awal!");
+        }
+      };
+
+      // Handle saving edited/added units
+      const handleSaveUnit = (e) => {
+        e.preventDefault();
+        if (editingUnit) {
+          const updated = proposedUnits.map(unit => 
+            unit.id === editingUnit.id ? { ...unit, ...formData } : unit
+          );
+          setProposedUnits(updated);
+          localStorage.setItem("skkni_usulan_kompetensi", JSON.stringify(updated));
+          setEditingUnit(null);
+          triggerToast("Unit kompetensi berhasil diperbarui!");
+        } else {
+          const newUnit = {
+            id: Date.now(),
+            ...formData
+          };
+          const updated = [...proposedUnits, newUnit];
+          setProposedUnits(updated);
+          localStorage.setItem("skkni_usulan_kompetensi", JSON.stringify(updated));
+          setShowAddForm(false);
+          triggerToast("Unit kompetensi usulan baru berhasil ditambahkan!");
+        }
+        setFormData({ code: "", title: "", cluster: "", level: "", description: "", rationale: "" });
+      };
+
+      const handleStartEdit = (unit) => {
+        setEditingUnit(unit);
+        setFormData({
+          code: unit.code,
+          title: unit.title,
+          cluster: unit.cluster,
+          level: unit.level,
+          description: unit.description,
+          rationale: unit.rationale
+        });
+        setShowAddForm(false);
+      };
+
+      const handleDeleteUnit = (id) => {
+        if (window.confirm("Hapus unit usulan ini dari draf?")) {
+          const updated = proposedUnits.filter(u => u.id !== id);
+          setProposedUnits(updated);
+          localStorage.setItem("skkni_usulan_kompetensi", JSON.stringify(updated));
+          triggerToast("Unit kompetensi berhasil dihapus!");
+        }
+      };
+
+      // Calculate dynamic cluster weights for Spider Charts
+      const stats149 = useMemo(() => {
+        const counts = {};
+        skkni149Units.forEach(u => {
+          counts[u.cluster] = (counts[u.cluster] || 0) + 1;
+        });
+        return counts;
+      }, []);
+
+      const stats307 = useMemo(() => {
+        const counts = {};
+        skkni307Units.forEach(u => {
+          counts[u.cluster] = (counts[u.cluster] || 0) + 1;
+        });
+        return counts;
+      }, []);
+
+      const statsGlobal = useMemo(() => {
+        const counts = {};
+        hcmGlobalUnits.forEach(u => {
+          counts[u.cluster] = (counts[u.cluster] || 0) + 1;
+        });
+        return counts;
+      }, []);
+
+      // Grouping logic helper for dynamic interactive excel-like table mapping
+      const grouped149 = useMemo(() => {
+        const map = {};
+        skkni149Units.forEach(u => {
+          if (!map[u.cluster]) map[u.cluster] = {};
+          if (!map[u.cluster][u.subCluster]) map[u.cluster][u.subCluster] = [];
+          map[u.cluster][u.subCluster].push(u);
+        });
+        return map;
+      }, []);
+
+      const grouped307 = useMemo(() => {
+        const map = {};
+        skkni307Units.forEach(u => {
+          if (!map[u.cluster]) map[u.cluster] = {};
+          if (!map[u.cluster][u.subCluster]) map[u.cluster][u.subCluster] = [];
+          map[u.cluster][u.subCluster].push(u);
+        });
+        return map;
+      }, []);
+
+      const groupedGlobal = useMemo(() => {
+        const map = {};
+        hcmGlobalUnits.forEach(u => {
+          if (!map[u.cluster]) map[u.cluster] = {};
+          if (!map[u.cluster][u.subCluster]) map[u.cluster][u.subCluster] = [];
+          map[u.cluster][u.subCluster].push(u);
+        });
+        return map;
+      }, []);
+
+      // Toggle clusters for expand/collapse (Excel Style)
+      const toggleCluster = (page, cluster) => {
+        if (page === "149") {
+          setExpanded149(prev => ({ ...prev, [cluster]: !prev[cluster] }));
+        } else if (page === "307") {
+          setExpanded307(prev => ({ ...prev, [cluster]: !prev[cluster] }));
+        } else {
+          setExpandedGlobal(prev => ({ ...prev, [cluster]: !prev[cluster] }));
+        }
+      };
+
+      const setAllGroupExpanded = (page, isExpand) => {
+        const obj = {};
+        let targetList = [];
+        if (page === "149") {
+          targetList = Object.keys(grouped149);
+          targetList.forEach(k => obj[k] = isExpand);
+          setExpanded149(obj);
+        } else if (page === "307") {
+          targetList = Object.keys(grouped307);
+          targetList.forEach(k => obj[k] = isExpand);
+          setExpanded307(obj);
+        } else {
+          targetList = Object.keys(groupedGlobal);
+          targetList.forEach(k => obj[k] = isExpand);
+          setExpandedGlobal(obj);
+        }
+      };
+
+      if (!isAuthenticated) {
+        return <LockScreen onAccessGranted={() => setIsAuthenticated(true)} />;
+      }
+
+      return (
+        <div class="min-h-screen flex flex-col md:flex-row bg-slate-50 relative">
+          
+          {/* Toast Notification Pop up */}
+          {toastMessage && (
+            <div class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-slate-800 flex items-center space-x-3 transition-all animate-bounce max-w-sm">
+              <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+              <span class="text-xs font-semibold">{toastMessage}</span>
+            </div>
+          )}
+
+          {/* SIDEBAR NAVIGATION - FIXED & STICKY SO THE HEADERS REMAIN STATIC WHILE MENU ITEMS SCROLL */}
+          <aside class="no-print w-full md:w-80 bg-slate-900 text-slate-300 flex flex-col md:h-screen md:sticky md:top-0 flex-shrink-0 shadow-xl border-r border-slate-800">
+            {/* Top Corporate Branding - STABILIZED STATIC HEADER */}
+            <div class="p-6 border-b border-slate-800 flex items-center space-x-3 flex-shrink-0 bg-slate-900">
+              <div class="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+                HC
+              </div>
+              <div>
+                <h2 class="text-sm font-bold text-white tracking-wide">Direktorat HCM</h2>
+                <p class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Sistem Penyelarasan Standardisasi</p>
+              </div>
+            </div>
+
+            {/* Profile Bar - STABILIZED STATIC HEADER */}
+            <div class="px-6 py-4 border-b border-slate-800 bg-slate-950/40 flex items-center space-x-3 flex-shrink-0">
+              <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white">
+                IN
+              </div>
+              <div class="min-w-0 flex-1">
+                <h4 class="text-xs font-bold text-white truncate">{namaPenyusun}</h4>
+                <p class="text-[10px] text-indigo-400 font-medium truncate">{namaOrganisasi}</p>
+              </div>
+              <div class="flex-shrink-0">
+                <button 
+                  onClick={() => setIsAuthenticated(false)} 
+                  title="Keluar Sesi"
+                  class="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-red-400 transition"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Menu List - ONLY THIS SECTION WILL SCROLL IF HEIGHT IS INSUFFICIENT */}
+            <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+              <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Utama & Analisis</p>
+              
+              <button 
+                onClick={() => { setCurrentPage("dashboard") }} 
+                class={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${currentPage === "dashboard" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10" : "hover:bg-slate-800 hover:text-slate-100"}`}
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Ringkasan Dashboard</span>
+              </button>
+
+              <button 
+                onClick={() => { setCurrentPage("komparasi") }} 
+                class={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${currentPage === "komparasi" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10" : "hover:bg-slate-800 hover:text-slate-100"}`}
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 00-2 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Komparasi & Analisis Gap</span>
+              </button>
+
+              <p class="px-3 pt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Standar Kompetensi</p>
+
+              <button 
+                onClick={() => { setCurrentPage("skkni149") }} 
+                class={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${currentPage === "skkni149" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10" : "hover:bg-slate-800 hover:text-slate-100"}`}
+              >
+                <div class="flex items-center space-x-3">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  <span>SKKNI No. 149/2020</span>
+                </div>
+                <span class="bg-indigo-950 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full font-bold">61 Unit</span>
+              </button>
+
+              <button 
+                onClick={() => { setCurrentPage("skkni307") }} 
+                class={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${currentPage === "skkni307" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10" : "hover:bg-slate-800 hover:text-slate-100"}`}
+              >
+                <div class="flex items-center space-x-3">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  <span>SKKNI No. 307/2014</span>
+                </div>
+                <span class="bg-indigo-950 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full font-bold">104 Unit</span>
+              </button>
+
+              <button 
+                onClick={() => { setCurrentPage("hcmglobal") }} 
+                class={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${currentPage === "hcmglobal" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10" : "hover:bg-slate-800 hover:text-slate-100"}`}
+              >
+                <div class="flex items-center space-x-3">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                  <span>Riset Kompetensi HCM</span>
+                </div>
+                <span class="bg-indigo-950 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full font-bold">30 Unit</span>
+              </button>
+
+              <p class="px-3 pt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Usulan & Dokumen</p>
+
+              <button 
+                onClick={() => { setCurrentPage("usulan") }} 
+                class={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${currentPage === "usulan" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10" : "hover:bg-slate-800 hover:text-slate-100"}`}
+              >
+                <div class="flex items-center space-x-3">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span>Draf Usulan Kompetensi</span>
+                </div>
+                <span class="bg-emerald-950 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-bold">{proposedUnits.length} Unit</span>
+              </button>
+
+              <button 
+                onClick={() => { setCurrentPage("ekspor") }} 
+                class={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${currentPage === "ekspor" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10" : "hover:bg-slate-800 hover:text-slate-100"}`}
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>Cetak Dokumen & Ekspor</span>
+              </button>
+            </nav>
+
+            {/* Sidebar Footer - STABILIZED STATIC FOOTER */}
+            <div class="p-4 border-t border-slate-800 text-[10px] text-slate-500 text-center flex-shrink-0 bg-slate-900">
+              <p class="font-bold text-slate-400 mb-1">Developed by Iman N Bajuasijadji</p>
+              Sesi Terkunci Kalender <br/>
+              © Forum LSP MSDM - 2026
+            </div>
+          </aside>
+
+          {/* MAIN CONTAINER */}
+          <main class="flex-1 flex flex-col min-w-0">
+            
+            {/* INNER PAGE VIEWS */}
+            <div class="flex-1 p-6 md:p-8 overflow-y-auto">
+
+              {/* ==========================================
+                  VIEW: DASHBOARD INDEX SUMMARY (STATIC HEAD)
+                  ========================================== */}
+              {currentPage === "dashboard" && (
+                <div class="space-y-8 animate-fade-in print-full-width">
+                  {/* Static Page Header */}
+                  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h1 class="text-xl font-bold text-slate-900 tracking-tight">Ringkasan Eksekutif Kompetensi Kerja</h1>
+                      <p class="text-xs text-slate-500 mt-1">Gambaran Umum Penyelarasan Standar Kompetensi Nasional Bidang Manajemen Sumber Daya Manusia</p>
+                    </div>
+                    <div class="flex items-center space-x-3 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200">
+                      <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                      <div class="text-right">
+                        <p class="text-xs font-bold text-slate-800 font-mono">1 Juli 2026</p>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Tahun Audit Mutu</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Highlight Cards */}
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-gradient-to-tr from-slate-900 to-indigo-950 p-6 rounded-2xl shadow-sm border border-slate-800 text-white">
+                      <p class="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-1">SKKNI MSDM 149/2020</p>
+                      <h3 class="text-3xl font-bold font-mono">61</h3>
+                      <p class="text-xs text-slate-400 mt-2 leading-relaxed">Unit Kompetensi terintegrasi dalam 9 Fungsi Kunci Utama.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">SKKNI MSDM 307/2014</p>
+                      <h3 class="text-3xl font-bold font-mono text-slate-800">104</h3>
+                      <p class="text-xs text-slate-500 mt-2 leading-relaxed">Unit Kompetensi terintegrasi dalam 9 Fungsi Kunci fungsional lengkap.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                      <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1">Riset Kompetensi Global</p>
+                      <h3 class="text-3xl font-bold font-mono text-slate-800">30</h3>
+                      <p class="text-xs text-slate-500 mt-2 leading-relaxed">Aspek kompetensi modern terangkum dalam 5 rumpun ketangkasan tanpa batas kode unit.</p>
+                    </div>
+                    <div class="bg-emerald-500/10 p-6 rounded-2xl shadow-sm border border-emerald-500/20 text-emerald-950">
+                      <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1">Draf Usulan Terkini</p>
+                      <h3 class="text-3xl font-bold font-mono">{proposedUnits.length}</h3>
+                      <p class="text-xs text-emerald-800 mt-2 leading-relaxed">Rekomendasi unit kompetensi baru hasil sintesis kesenjangan.</p>
+                    </div>
+                  </div>
+
+                  {/* Summary Narrative Header */}
+                  <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                    <h3 class="text-lg font-bold text-slate-900 tracking-tight border-b border-slate-100 pb-3">Tinjauan Mutu Analisis Pergeseran Paradigma</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm leading-relaxed text-slate-600">
+                      <div class="space-y-4">
+                        <p>
+                          Lanskap Manajemen Modal Manusia (<span class="font-semibold text-slate-900">Human Capital Management - HCM</span>) saat ini sedang bermutasi dari model administrasi fungsional murni ke arah penciptaan nilai strategis yang berkecepatan tinggi. Berdasarkan dokumen <span class="italic font-medium text-slate-900">Riset Kompetensi HCM Global</span> yang dianalisis, organisasi modern kini dituntut untuk menguasai konsep <span class="font-semibold text-slate-900">stabilitas dinamis (stagility)</span>.
+                        </p>
+                        <p>
+                          Yaitu sebuah kapabilitas ganda untuk menjaga fondasi inti organisasi yang kokoh, sekaligus mampu memobilisasi kapabilitas baru serta merekonfigurasi peran kerja secara instan untuk meredam guncangan pasar eksternal yang diakibatkan oleh penetrasi <span class="font-semibold text-slate-900">Kecerdasan Buatan (Generative AI)</span>.
+                        </p>
+                      </div>
+                      <div class="space-y-4">
+                        <p>
+                          Kesenjangan utama dalam SKKNI No. 307/2014 adalah ketergantungannya pada aspek administratif operasional dan silo fungsi (terdistribusi dalam 104 unit fungsional yang kini dipetakan ke dalam 9 Fungsi Kunci). Meskipun SKKNI No. 149/2020 telah melakukan perbaikan masif menuju manajemen talenta terintegrasi (dipetakan kembali ke dalam 9 Fungsi Kunci resmi), standar nasional kita masih menyisakan kekosongan dalam memitigasi <span class="font-semibold text-slate-900">utang budaya (cultural debt)</span> dan penjaminan <span class="font-semibold text-slate-900">keamanan psikososial (anti-burnout)</span> karyawan pasca-transformasi digital yang disruptif.
+                        </p>
+                        <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-xs text-indigo-950 flex items-start space-x-3">
+                          <svg class="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>
+                            <strong>Rekomendasi Aksi:</strong> LSP disarankan segera mengadopsi 6 usulan unit kompetensi strategis baru yang telah dirumuskan pada modul Editor Usulan di dashboard ini demi menjamin relevansi nasional.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Visual Cluster Overview */}
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <RadarChart data={stats149} title="9 Fungsi Kunci SKKNI 149/2020" />
+                    <RadarChart data={stats307} title="9 Fungsi Kunci SKKNI 307/2014" />
+                    <RadarChart data={statsGlobal} title="Riset Klaster HCM Global" />
+                  </div>
+                </div>
+              )}
+
+
+              {/* ==========================================
+                  VIEW: PAGE 1 - SKKNI 149/2020 (61 Units - CLUSTERED BY FUNGSI KUNCI RESMI)
+                  ========================================== */}
+              {currentPage === "skkni149" && (
+                <div class="space-y-8 animate-fade-in print-full-width">
+                  {/* Static Page Header */}
+                  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">SKKNI No. 149 Tahun 2020</h2>
+                      <p class="text-xs text-slate-500 mt-1">Standar Kompetensi Kerja Nasional Indonesia Bidang Manajemen Sumber Daya Manusia (MSDM) — Dipetakan Berdasarkan 9 Fungsi Kunci Resmi</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2.5">
+                      <button 
+                        onClick={() => setAllGroupExpanded("149", true)} 
+                        class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition"
+                      >
+                        Expand Semua Klaster
+                      </button>
+                      <button 
+                        onClick={() => setAllGroupExpanded("149", false)} 
+                        class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition"
+                      >
+                        Collapse Semua Klaster
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Grid layout with table on left, spider chart on right */}
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    
+                    {/* Excel Grouping Interactive Table */}
+                    <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                      <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h3 class="text-sm font-bold text-slate-800 tracking-wide uppercase">Pemetaan Unit & Klaster 9 Fungsi Kunci Resmi</h3>
+                        <div class="relative w-full md:w-64">
+                          <input 
+                            type="text" 
+                            value={search149}
+                            onChange={(e) => {
+                              setSearch149(e.target.value);
+                              // Auto expand if search is initiated
+                              if (e.target.value) setAllGroupExpanded("149", true);
+                            }}
+                            placeholder="Cari kode atau judul unit..."
+                            class="w-full bg-slate-55 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
+                          />
+                          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse">
+                          <thead class="bg-slate-50 sticky top-0 z-20 shadow-sm">
+                            <tr>
+                              <th class="py-3.5 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Identifikasi / 9 Fungsi Kunci Terstruktur</th>
+                              <th class="py-3.5 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-36">Kode Unit</th>
+                              <th class="py-3.5 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-24">Tingkat</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.keys(grouped149).map((clusterName) => {
+                              const subClusters = grouped149[clusterName];
+                              const isClusterExpanded = expanded149[clusterName] !== false; // default true
+                              
+                              // Count units in this cluster that match search
+                              let matchedInClusterCount = 0;
+                              Object.values(subClusters).forEach(sub => {
+                                sub.forEach(unit => {
+                                  if (unit.title.toLowerCase().includes(search149.toLowerCase()) || unit.code.toLowerCase().includes(search149.toLowerCase())) {
+                                    matchedInClusterCount++;
+                                  }
+                                });
+                              });
+
+                              if (search149 && matchedInClusterCount === 0) return null;
+
+                              return (
+                                <React.Fragment key={clusterName}>
+                                  {/* Klaster Header Row (Excel Group Layer 1) */}
+                                  <tr 
+                                    onClick={() => toggleCluster("149", clusterName)}
+                                    class="bg-indigo-50/70 hover:bg-indigo-100/80 cursor-pointer select-none transition-colors border-b border-indigo-200/50"
+                                  >
+                                    <td colSpan="3" class="py-3 px-4 font-bold text-xs text-indigo-950 flex items-center space-x-2">
+                                      <span class="w-5 h-5 flex items-center justify-center bg-white border border-indigo-300 rounded text-indigo-800 font-mono text-[10px]">
+                                        {isClusterExpanded ? "−" : "+"}
+                                      </span>
+                                      <span class="uppercase tracking-wider">Fungsi Kunci: {clusterName}</span>
+                                      <span class="bg-indigo-800 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">
+                                        {matchedInClusterCount || Object.values(subClusters).flat().length} Unit
+                                      </span>
+                                    </td>
+                                  </tr>
+
+                                  {/* Sub clusters and units rendered conditionally based on expanded status */}
+                                  {isClusterExpanded && Object.keys(subClusters).map((subName) => {
+                                    const units = subClusters[subName];
+                                    const filteredUnits = units.filter(unit => 
+                                      unit.title.toLowerCase().includes(search149.toLowerCase()) || 
+                                      unit.code.toLowerCase().includes(search149.toLowerCase())
+                                    );
+
+                                    if (filteredUnits.length === 0) return null;
+
+                                    return (
+                                      <React.Fragment key={subName}>
+                                        {/* Sub-Klaster Row (Excel Group Layer 2) */}
+                                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                                          <td colSpan="3" class="py-2 px-8 font-semibold text-xs text-slate-600 bg-slate-50/20">
+                                            └ Sub-Fungsi Kunci: <span class="text-indigo-600">{subName}</span>
+                                          </td>
+                                        </tr>
+
+                                        {/* Unit Kompetensi Rows (Level 3) */}
+                                        {filteredUnits.map((unit) => (
+                                          <tr key={unit.id} class="hover:bg-slate-50/80 border-b border-slate-100/70 transition-colors">
+                                            <td class="py-3.5 px-12 text-xs font-medium text-slate-800 leading-relaxed">
+                                              {unit.title}
+                                            </td>
+                                            <td class="py-3.5 px-6 text-xs font-mono text-slate-500">
+                                              {unit.code}
+                                            </td>
+                                            <td class="py-3.5 px-6 text-xs">
+                                              <span class={`px-2.5 py-0.5 rounded-full font-semibold text-[9px] ${unit.level === "Utama" ? "bg-indigo-100 text-indigo-800" : unit.level === "Menengah" ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-800"}`}>
+                                                {unit.level}
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </React.Fragment>
+                                    );
+                                  })}
+                                </React.Fragment>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Spider Chart on Right */}
+                    <div class="space-y-6">
+                      <RadarChart data={stats149} title="Profil 9 Fungsi Kunci SKKNI 149/2020" />
+                      
+                      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-widest">Interpretasi Grafik Jaring Laba-laba</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                          Pada SKKNI 149/2020 yang dipetakan ulang ke dalam 9 Fungsi Kunci resmi, sebaran unit menunjukkan fokus yang komprehensif pada pilar pengembangan organisasi, remunerasi, dan ketenagakerjaan secara harmonis.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+
+              {/* =========================================================================
+                  VIEW: PAGE 2 - SKKNI 307/2014 (104 UNIT KOMPETENSI LENGKAP - FUNGSI KUNCI RESMI)
+                  ========================================================================= */}
+              {currentPage === "skkni307" && (
+                <div class="space-y-8 animate-fade-in print-full-width">
+                  {/* Static Page Header */}
+                  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">SKKNI No. 307 Tahun 2014</h2>
+                      <p class="text-xs text-slate-500 mt-1">Standar Kompetensi Kerja Nasional Indonesia Bidang Manajemen Sumberdaya Manusia (104 Unit Kompetensi Dipetakan ke 9 Fungsi Kunci Resmi)</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2.5">
+                      <button 
+                        onClick={() => setAllGroupExpanded("307", true)} 
+                        class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition"
+                      >
+                        Expand Semua Klaster
+                      </button>
+                      <button 
+                        onClick={() => setAllGroupExpanded("307", false)} 
+                        class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition"
+                      >
+                        Collapse Semua Klaster
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    
+                    {/* Excel Grouping Interactive Table */}
+                    <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                      <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h3 class="text-sm font-bold text-slate-800 tracking-wide uppercase">Pemetaan Unit & Klaster 9 Fungsi Kunci (104 Unit)</h3>
+                        <div class="relative w-full md:w-64">
+                          <input 
+                            type="text" 
+                            value={search307}
+                            onChange={(e) => {
+                              setSearch307(e.target.value);
+                              if (e.target.value) setAllGroupExpanded("307", true);
+                            }}
+                            placeholder="Cari kode atau judul unit..."
+                            class="w-full bg-slate-55 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
+                          />
+                          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse">
+                          <thead class="bg-slate-50 sticky top-0 z-20 shadow-sm">
+                            <tr>
+                              <th class="py-3.5 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Identifikasi / 9 Fungsi Kunci Resmi</th>
+                              <th class="py-3.5 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-36">Kode Unit</th>
+                              <th class="py-3.5 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-24">Tingkat</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.keys(grouped307).map((clusterName) => {
+                              const subClusters = grouped307[clusterName];
+                              const isClusterExpanded = expanded307[clusterName] !== false; // default true
+                              
+                              let matchedInClusterCount = 0;
+                              Object.values(subClusters).forEach(sub => {
+                                sub.forEach(unit => {
+                                  if (unit.title.toLowerCase().includes(search307.toLowerCase()) || unit.code.toLowerCase().includes(search307.toLowerCase())) {
+                                    matchedInClusterCount++;
+                                  }
+                                });
+                              });
+
+                              if (search307 && matchedInClusterCount === 0) return null;
+
+                              return (
+                                <React.Fragment key={clusterName}>
+                                  {/* Klaster Header Row (Excel Group Layer 1) */}
+                                  <tr 
+                                    onClick={() => toggleCluster("307", clusterName)}
+                                    class="bg-indigo-50/70 hover:bg-indigo-100/80 cursor-pointer select-none transition-colors border-b border-indigo-200/50"
+                                  >
+                                    <td colSpan="3" class="py-3 px-4 font-bold text-xs text-indigo-950 flex items-center space-x-2">
+                                      <span class="w-5 h-5 flex items-center justify-center bg-white border border-indigo-300 rounded text-indigo-800 font-mono text-[10px]">
+                                        {isClusterExpanded ? "−" : "+"}
+                                      </span>
+                                      <span class="uppercase tracking-wider">Fungsi Kunci: {clusterName}</span>
+                                      <span class="bg-indigo-800 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">
+                                        {matchedInClusterCount || Object.values(subClusters).flat().length} Unit
+                                      </span>
+                                    </td>
+                                  </tr>
+
+                                  {isClusterExpanded && Object.keys(subClusters).map((subName) => {
+                                    const units = subClusters[subName];
+                                    const filteredUnits = units.filter(unit => 
+                                      unit.title.toLowerCase().includes(search307.toLowerCase()) || 
+                                      unit.code.toLowerCase().includes(search307.toLowerCase())
+                                    );
+
+                                    if (filteredUnits.length === 0) return null;
+
+                                    return (
+                                      <React.Fragment key={subName}>
+                                        {/* Sub-Klaster Row */}
+                                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                                          <td colSpan="3" class="py-2.5 px-8 font-semibold text-xs text-slate-600 bg-slate-50/20">
+                                            └ Sub-Fungsi Kunci: <span class="text-indigo-600">{subName}</span>
+                                          </td>
+                                        </tr>
+
+                                        {/* Unit Kompetensi Rows */}
+                                        {filteredUnits.map((unit) => (
+                                          <tr key={unit.id} class="hover:bg-slate-50/80 border-b border-slate-100/70 transition-colors">
+                                            <td class="py-3.5 px-12 text-xs font-medium text-slate-800 leading-relaxed">
+                                              {unit.title}
+                                            </td>
+                                            <td class="py-3.5 px-6 text-xs font-mono text-slate-500">
+                                              {unit.code}
+                                            </td>
+                                            <td class="py-3.5 px-6 text-xs">
+                                              <span class={`px-2.5 py-0.5 rounded-full font-semibold text-[9px] ${unit.level === "Utama" ? "bg-indigo-100 text-indigo-800" : unit.level === "Menengah" ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-800"}`}>
+                                                {unit.level}
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </React.Fragment>
+                                    );
+                                  })}
+                                </React.Fragment>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Spider Chart on Right */}
+                    <div class="space-y-6">
+                      <RadarChart data={stats307} title="Profil Kepadatan 9 Fungsi Kunci 307/2014" />
+                      
+                      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-widest">Karakteristik Standardisasi Lama</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                          Pemetaan 104 Unit Kompetensi ke dalam 9 Fungsi Kunci resmi ini memperlihatkan kedalaman analisis transaksional lama yang terdistribusi secara rinci pada fungsionalitas adminisrasi karyawan dan kepatuhan hukum kerja.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+
+              {/* =========================================================================
+                  VIEW: PAGE 3 - RISET HCM GLOBAL (30 Units - TIDAK MENAMPILKAN KODE UNIT)
+                  ========================================================================= */}
+              {currentPage === "hcmglobal" && (
+                <div class="space-y-8 animate-fade-in print-full-width">
+                  {/* Static Page Header */}
+                  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Riset Kompetensi HCM Global</h2>
+                      <p class="text-xs text-slate-500 mt-1">Lanskap Baru Kompetensi Human Capital Management: Analisis Integratif dan Kerangka Kerja Terupdate Global (Kombinasi Tanpa Kode Unit)</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2.5">
+                      <button 
+                        onClick={() => setAllGroupExpanded("global", true)} 
+                        class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition"
+                      >
+                        Expand Semua Klaster
+                      </button>
+                      <button 
+                        onClick={() => setAllGroupExpanded("global", false)} 
+                        class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition"
+                      >
+                        Collapse Semua Klaster
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    
+                    {/* Excel Grouping Interactive Table */}
+                    <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                      <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h3 class="text-sm font-bold text-slate-800 tracking-wide uppercase">Pemetaan Rumpun Kompetensi Global</h3>
+                        <div class="relative w-full md:w-64">
+                          <input 
+                            type="text" 
+                            value={searchGlobal}
+                            onChange={(e) => {
+                              setSearchGlobal(e.target.value);
+                              if (e.target.value) setAllGroupExpanded("global", true);
+                            }}
+                            placeholder="Cari kompetensi global..."
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition"
+                          />
+                          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse border border-slate-100">
+                          <thead class="bg-slate-50 sticky top-0 z-20 shadow-sm">
+                            <tr>
+                              <th class="py-3.5 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Global Skill Definition</th>
+                              <th class="py-3.5 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-24">Tier</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.keys(groupedGlobal).map((clusterName) => {
+                              const subClusters = groupedGlobal[clusterName];
+                              const isClusterExpanded = expandedGlobal[clusterName] !== false; // default true
+                              
+                              let matchedInClusterCount = 0;
+                              Object.values(subClusters).forEach(sub => {
+                                sub.forEach(unit => {
+                                  if (unit.title.toLowerCase().includes(searchGlobal.toLowerCase())) {
+                                    matchedInClusterCount++;
+                                  }
+                                });
+                              });
+
+                              if (searchGlobal && matchedInClusterCount === 0) return null;
+
+                              return (
+                                <React.Fragment key={clusterName}>
+                                  {/* Klaster Header Row (Excel Group Layer 1) */}
+                                  <tr 
+                                    onClick={() => toggleCluster("global", clusterName)}
+                                    class="bg-slate-900 hover:bg-slate-800 text-white cursor-pointer select-none transition-colors border-b border-slate-800"
+                                  >
+                                    <td colSpan="2" class="py-3 px-4 font-bold text-xs flex items-center space-x-2">
+                                      <span class="w-5 h-5 flex items-center justify-center bg-slate-800 border border-slate-700 rounded text-slate-300 font-mono text-[10px]">
+                                        {isClusterExpanded ? "−" : "+"}
+                                      </span>
+                                      <span class="uppercase tracking-wider">Cluster: {clusterName}</span>
+                                      <span class="bg-indigo-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">
+                                        {matchedInClusterCount || Object.values(subClusters).flat().length} Aspects
+                                      </span>
+                                    </td>
+                                  </tr>
+
+                                  {isClusterExpanded && Object.keys(subClusters).map((subName) => {
+                                    const units = subClusters[subName];
+                                    const filteredUnits = units.filter(unit => 
+                                      unit.title.toLowerCase().includes(searchGlobal.toLowerCase())
+                                    );
+
+                                    if (filteredUnits.length === 0) return null;
+
+                                    return (
+                                      <React.Fragment key={subName}>
+                                        {/* Sub-Klaster Row */}
+                                        <tr class="bg-slate-100/50 border-b border-slate-200">
+                                          <td colSpan="2" class="py-2.5 px-8 font-semibold text-xs text-slate-600 bg-slate-100/20">
+                                            └ Sub-Cluster: <span class="text-indigo-600 font-mono">{subName}</span>
+                                          </td>
+                                        </tr>
+
+                                        {/* Unit Kompetensi Rows (KODE UNIT DIHILANGKAN SESUAI INSTRUKSI) */}
+                                        {filteredUnits.map((unit) => (
+                                          <tr key={unit.id} class="hover:bg-slate-55 border-b border-slate-100 transition-colors">
+                                            <td class="py-3.5 px-12 text-xs font-semibold text-slate-800 leading-relaxed font-sans">
+                                              {unit.title}
+                                            </td>
+                                            <td class="py-3.5 px-6 text-xs">
+                                              <span class={`px-2.5 py-0.5 rounded-full font-bold text-[9px] ${unit.level === "Executive" ? "bg-red-100 text-red-800" : unit.level === "Senior Lead" ? "bg-amber-100 text-amber-800" : "bg-indigo-100 text-indigo-800"}`}>
+                                                {unit.level}
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </React.Fragment>
+                                    );
+                                  })}
+                                </React.Fragment>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Spider Chart on Right */}
+                    <div class="space-y-6">
+                      <RadarChart data={statsGlobal} title="Sebaran Bobot Kompetensi Global" />
+                      
+                      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                        <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Indikasi Disrupsi Global</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                          Sangat kontras dengan SKKNI domestik, riset global merata ke arah <span class="font-semibold text-slate-700">Digital Transformation</span>, <span class="font-semibold text-slate-700">Human Centricity & ESG</span>, serta mitigasi <span class="font-semibold text-slate-700">Cultural Debt</span>. Hal ini menekankan perlunya Forum LSP MSDM mendesain draf usulan terupdate.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+
+              {/* ==========================================
+                  VIEW: PAGE 4 - COMPARATIVE MATRIX
+                  ========================================== */}
+              {currentPage === "komparasi" && (
+                <div class="space-y-8 animate-fade-in print-full-width">
+                  {/* Static Page Header */}
+                  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Matriks Analisis Komparasi</h2>
+                    <p class="text-xs text-slate-500 mt-1">Pemetaan komparatif kesenjangan sistem standardisasi nasional terhadap paradigma baru standardisasi global</p>
+                  </div>
+
+                  {/* Comprehensive Comparison Table */}
+                  <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+                      <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Matriks Komparasi Karakteristik Standardisasi</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr class="bg-slate-100 border-b border-slate-200">
+                            <th class="py-4 px-6 font-bold text-slate-700 uppercase tracking-wider w-1/5">Metrik Analisis</th>
+                            <th class="py-4 px-6 font-bold text-slate-700 uppercase tracking-wider w-1/4">SKKNI No. 307/2014</th>
+                            <th class="py-4 px-6 font-bold text-slate-700 uppercase tracking-wider w-1/4">SKKNI No. 149/2020</th>
+                            <th class="py-4 px-6 font-bold text-slate-700 uppercase tracking-wider w-1/4">Riset HCM Global</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600 leading-relaxed">
+                          <tr>
+                            <td class="py-4 px-6 font-bold text-slate-800 bg-slate-50/20">Fokus Utama</td>
+                            <td class="py-4 px-6">Administrasi Personalia, Kepatuhan Peraturan Normatif, Taktis Lapangan (104 Unit fungsional mendalam).</td>
+                            <td class="py-4 px-6">Manajemen Bakat Terintegrasi, Kinerja Organisasi, Strategi taktis yang diselaraskan bisnis (61 Unit).</td>
+                            <td class="py-4 px-6">Resiliensi Organisasi, Stagilitas (Stabilitas Dinamis), Digital Trust, ESG, Etika AI (Aspek Holistik Tanpa Kode Unit).</td>
+                          </tr>
+                          <tr>
+                            <td class="py-4 px-6 font-bold text-slate-800 bg-slate-50/20">Teknologi & Data</td>
+                            <td class="py-4 px-6">Sistem Pengarsipan Fisik, Dasar Pengolahan Spreadsheet Sederhana.</td>
+                            <td class="py-4 px-6">Layanan dasar HRIS Terkomputerisasi, Pengolahan Data HR Analytics Tingkat Dasar.</td>
+                            <td class="py-4 px-6">Generative AI, Big Data People Analytics, Ethical AI Frameworks, Unified SaaS Platforms.</td>
+                          </tr>
+                          <tr>
+                            <td class="py-4 px-6 font-bold text-slate-800 bg-slate-50/20">Resiliensi Budaya</td>
+                            <td class="py-4 px-6">Bipartit Hubungan Industrial Tradisional, Sosialisasi Budaya Monolitik.</td>
+                            <td class="py-4 px-6">Audit Kepatuhan Hukum, Manajemen Perubahan Taktis, Penyelesaian Perselisihan.</td>
+                            <td class="py-4 px-6">Mitigasi Cultural Debt, Pengurangan Burnout, Psychological Safety.</td>
+                          </tr>
+                          <tr>
+                            <td class="py-4 px-6 font-bold text-slate-800 bg-slate-50/20">Model Kepemimpinan</td>
+                            <td class="py-4 px-6">Hierarki Terpusat, Manajemen Komando Operasional.</td>
+                            <td class="py-4 px-6">Manajemen Suksesi Terbimbing, Program Pelatihan Kompetensi Terpola.</td>
+                            <td class="py-4 px-6">Co-Leadership Terdesentralisasi, Agile Team Coach, Personalised Learning Pathways.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Analytical Breakdown Paragraph */}
+                  <div class="bg-indigo-950 p-8 rounded-3xl text-white space-y-4">
+                    <h3 class="text-sm font-bold text-indigo-300 uppercase tracking-widest">Sintesis Analisis Kesenjangan & Gap Kompetensi</h3>
+                    <p class="text-sm leading-relaxed text-slate-300">
+                      Berdasarkan komparasi di atas, kami menemukan bahwa <span class="text-white font-semibold">SKKNI domestik Indonesia saat ini masih berorientasi pada kestabilan operasional statis (static stability)</span>, yang tidak lagi relevan dalam menahan gelombang disrupsi digital global. Di sisi lain, Riset HCM Global menunjukkan pentingnya membangun kerangka kerja fleksibel yang siap melatih talenta dengan paradigma <span class="text-indigo-200 italic font-semibold">"Continuous Reskilling"</span> secara personal menggunakan instrumen AI.
+                    </p>
+                    <p class="text-sm leading-relaxed text-slate-300">
+                      Dengan demikian, diperlukan <span class="text-white font-semibold">Usulan Unit Kompetensi Terkini</span> yang memadukan ketaatan hukum ketenagakerjaan Indonesia dengan keluwesan tata kelola global (ESG & AI Ethics). Dibawah ini adalah draf usulan formulasi unit baru yang siap dikaji dan ditransfer ke dalam draf standar kompetensi LSP.
+                    </p>
+                  </div>
+
+                  {/* Proposed Competencies Summary Table */}
+                  <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-100">
+                      <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Usulan Formulasi Unit Kompetensi Terkini (Rekomendasi LSP)</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                      <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr class="bg-slate-55 border-b border-slate-200 text-slate-700">
+                            <th class="py-3 px-6 font-bold w-36">Kode Usulan</th>
+                            <th class="py-3 px-6 font-bold w-1/3">Judul Unit Kompetensi</th>
+                            <th class="py-3 px-6 font-bold w-1/4">Klaster Fungsi</th>
+                            <th class="py-3 px-6 font-bold">Rasional Utama Urgensi</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                          {proposedUnits.map((u) => (
+                            <tr key={u.id} class="hover:bg-slate-50/50 transition-colors">
+                              <td class="py-4 px-6 font-mono font-semibold text-slate-800">{u.code}</td>
+                              <td class="py-4 px-6 font-bold text-slate-900 leading-relaxed">{u.title}</td>
+                              <td class="py-4 px-6 font-medium text-slate-600">{u.cluster}</td>
+                              <td class="py-4 px-6 leading-relaxed text-slate-500">{u.rationale}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+
+              {/* ==========================================
+                  VIEW: PAGE 5 - INTERACTIVE EDITOR (Usulan)
+                  ========================================== */}
+              {currentPage === "usulan" && (
+                <div class="space-y-8 animate-fade-in print-full-width">
+                  {/* Static Page Header */}
+                  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Modul Editor Usulan Unit Kompetensi</h2>
+                      <p class="text-xs text-slate-500 mt-1">Kelola, sunting, tambah, atau kurangi rumusan unit kompetensi baru secara interaktif.</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2.5">
+                      <button 
+                        onClick={() => {
+                          setShowAddForm(!showAddForm);
+                          setEditingUnit(null);
+                          setFormData({ code: "", title: "", cluster: "", level: "", description: "", rationale: "" });
+                        }} 
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm shadow-indigo-600/10 transition"
+                      >
+                        {showAddForm ? "Tutup Form" : "Tambah Usulan Baru"}
+                      </button>
+                      <button 
+                        onClick={handleResetToDefault} 
+                        class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-4 py-2 rounded-xl text-xs font-semibold transition"
+                      >
+                        Sapu Bersih & Reset Default
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Add / Edit Form Modal-like Inline Card */}
+                  {(showAddForm || editingUnit) && (
+                    <div class="bg-white p-8 rounded-3xl border-2 border-indigo-100 shadow-lg space-y-6">
+                      <h3 class="text-sm font-bold text-indigo-950 uppercase tracking-wider pb-3 border-b border-indigo-50">
+                        {editingUnit ? `Sunting Usulan Unit: ${editingUnit.code}` : "Formulasi Tambah Usulan Kompetensi Baru"}
+                      </h3>
+                      <form onSubmit={handleSaveUnit} class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                        <div>
+                          <label class="block font-bold text-slate-700 uppercase tracking-wide mb-2">Kode Unit Usulan</label>
+                          <input 
+                            type="text" 
+                            value={formData.code} 
+                            onChange={(e) => setFormData({...formData, code: e.target.value})}
+                            placeholder="Contoh: USUL.HCM.007.1" 
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label class="block font-bold text-slate-700 uppercase tracking-wide mb-2">Judul Unit Kompetensi</label>
+                          <input 
+                            type="text" 
+                            value={formData.title} 
+                            onChange={(e) => setFormData({...formData, title: e.target.value})}
+                            placeholder="Tuliskan judul unit baru yang lugas..." 
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label class="block font-bold text-slate-700 uppercase tracking-wide mb-2">Klaster / Rumpun Kerja</label>
+                          <input 
+                            type="text" 
+                            value={formData.cluster} 
+                            onChange={(e) => setFormData({...formData, cluster: e.target.value})}
+                            placeholder="Contoh: Human Centricity & ESG" 
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label class="block font-bold text-slate-700 uppercase tracking-wide mb-2">Tingkat Jabatan Target</label>
+                          <select 
+                            value={formData.level} 
+                            onChange={(e) => setFormData({...formData, level: e.target.value})}
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            required
+                          >
+                            <option value="">-- Pilih Tingkatan --</option>
+                            <option value="Strategic Lead">Strategic Lead</option>
+                            <option value="Lead">Lead</option>
+                            <option value="Lead / Specialist">Lead / Specialist</option>
+                            <option value="Executive">Executive</option>
+                          </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                          <label class="block font-bold text-slate-700 uppercase tracking-wide mb-2">Deskripsi Lengkap Unit Kompetensi</label>
+                          <textarea 
+                            value={formData.description} 
+                            onChange={(e) => setFormData({...formData, description: e.target.value})}
+                            rows="3"
+                            placeholder="Tuliskan rumusan deskripsi tugas, tanggung jawab, dan kriteria kinerja esensial unit..."
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed"
+                            required
+                          />
+                        </div>
+
+                        <div class="md:col-span-2">
+                          <label class="block font-bold text-slate-700 uppercase tracking-wide mb-2">Rasional Akademik & Urgensi Gap</label>
+                          <textarea 
+                            value={formData.rationale} 
+                            onChange={(e) => setFormData({...formData, rationale: e.target.value})}
+                            rows="2"
+                            placeholder="Mengapa unit kompetensi ini kritis dibentuk sekarang? Jelaskan berdasarkan tinjauan riset gap..."
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed"
+                            required
+                          />
+                        </div>
+
+                        <div class="md:col-span-2 flex justify-end space-x-3.5 pt-4 border-t border-slate-100">
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              setShowAddForm(false);
+                              setEditingUnit(null);
+                              setFormData({ code: "", title: "", cluster: "", level: "", description: "", rationale: "" });
+                            }}
+                            class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-semibold transition"
+                          >
+                            Batal
+                          </button>
+                          <button 
+                            type="submit" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm transition"
+                          >
+                            {editingUnit ? "Simpan Perubahan" : "Formulasikan Unit Baru"}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+
+                  {/* Editable Proposed list in detailed card layout */}
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {proposedUnits.map((u) => (
+                      <div key={u.id} class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-indigo-100 hover:shadow-md transition">
+                        <div>
+                          <div class="flex items-center justify-between mb-4">
+                            <span class="font-mono text-xs font-bold text-slate-400">{u.code}</span>
+                            <span class="bg-indigo-50 text-indigo-700 font-bold px-2.5 py-0.5 rounded-full text-[9px] uppercase tracking-wide">{u.level}</span>
+                          </div>
+                          
+                          <h4 class="text-sm font-bold text-slate-900 leading-snug mb-3 tracking-tight">{u.title}</h4>
+                          
+                          <div class="space-y-3.5 text-xs text-slate-600">
+                            <div>
+                              <p class="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-1">Rumusan Deskripsi:</p>
+                              <p class="leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100/50 text-slate-700">{u.description}</p>
+                            </div>
+                            <div>
+                              <p class="font-bold text-[10px] text-indigo-400 uppercase tracking-widest mb-1">Rasional & Urgensi:</p>
+                              <p class="leading-relaxed text-slate-500 italic">{u.rationale}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-6 mt-6 border-t border-slate-100">
+                          <span class="text-[10px] text-slate-400 font-medium">Klaster: <strong class="text-slate-700">{u.cluster}</strong></span>
+                          <div class="flex items-center space-x-2">
+                            <button 
+                              onClick={() => handleStartEdit(u)}
+                              class="p-2 bg-slate-50 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 rounded-xl transition-colors"
+                              title="Edit Unit"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                              </svg>
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteUnit(u.id)}
+                              class="p-2 bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded-xl transition-colors"
+                              title="Hapus Unit"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                </div>
+              )}
+
+
+              {/* ===================================================
+                  VIEW: PAGE 6 - DOCUMENT PREVIEW & PDF PRINT EXPORT
+                  =================================================== */}
+              {currentPage === "ekspor" && (
+                <div class="space-y-8 animate-fade-in print-full-width">
+                  
+                  {/* Dynamic Manual Metadata Input Section for "Mengesahkan" Signature (No-Print) */}
+                  <div class="no-print bg-white p-6 rounded-3xl border-2 border-indigo-100 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 tracking-tight flex items-center space-x-2">
+                      <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span>Lengkapi Identitas Dokumen Sebelum Mencetak / Ekspor</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                      Silakan isi atau sesuaikan Nama Pengesah dan Jabatan Pengesah di bawah ini secara manual. Perubahan data akan langsung ter-render secara real-time pada pratinjau dokumen kerja, lembar tanda tangan pengesahan, dan dokumen PDF cetak.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <label class="block font-bold text-slate-700 uppercase tracking-wide mb-1.5">Nama Pengesah</label>
+                        <input 
+                          type="text" 
+                          value={namaPengesah}
+                          onChange={(e) => handleSaveSignatureMetadata(e.target.value, jabatanPengesah)}
+                          placeholder="Masukkan nama pengesah..."
+                          class="w-full bg-slate-55 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label class="block font-bold text-slate-700 uppercase tracking-wide mb-1.5">Jabatan / Lembaga Pengesah</label>
+                        <input 
+                          type="text" 
+                          value={jabatanPengesah}
+                          onChange={(e) => handleSaveSignatureMetadata(namaPengesah, e.target.value)}
+                          placeholder="Masukkan jabatan pengesah..."
+                          class="w-full bg-slate-55 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Dashboard Tools bar - Hidden on print */}
+                  <div class="no-print bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h2 class="text-sm font-bold text-slate-900 tracking-tight">Dokumen Hasil Rumusan Akhir</h2>
+                      <p class="text-xs text-slate-500 mt-1">Gunakan tombol cetak di bawah ini untuk membuat file PDF, atau ekspor data ke file CSV.</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2.5">
+                      <button 
+                        onClick={() => window.print()}
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-2"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        <span>Cetak ke PDF / Simpan</span>
+                      </button>
+
+                      <button 
+                        onClick={() => {
+                          const csvContent = convertToCSV(proposedUnits);
+                          triggerDownloadCSV(csvContent, "Usulan_Kompetensi_HCM_Terkini_LSP.csv");
+                        }}
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-2"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Unduh CSV Usulan</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Print Document container representing Academic Paper */}
+                  <div id="printable-area" class="bg-white p-8 md:p-16 rounded-3xl border border-slate-200/60 shadow-xl max-w-4xl mx-auto space-y-12 text-slate-800 leading-relaxed print-full-width">
+                    
+                    {/* Header Academic Report */}
+                    <div class="text-center space-y-4 border-b-2 border-slate-900 pb-8">
+                      <p class="text-xs uppercase font-extrabold tracking-widest text-indigo-600">Kertas Kerja Hasil Sintesis Akademik</p>
+                      <h1 class="academic-title text-2xl md:text-3xl font-bold text-slate-900">
+                        REKOMENDASI INTEGRASI STANDAR KOMPETENSI HUMAN CAPITAL MANAGEMENT NASIONAL & GLOBAL
+                      </h1>
+                      <p class="text-sm font-medium text-slate-600">
+                        Tinjauan Komparatif SKKNI No. 307/2014 (104 Unit), SKKNI No. 149/2020 (61 Unit), dan Lanskap Disrupsi HCM Global 2026
+                      </p>
+                      <div class="text-xs text-slate-400 font-mono flex flex-wrap items-center justify-center gap-4 pt-2">
+                        <span>Penerbit: {namaOrganisasi}</span>
+                        <span>•</span>
+                        <span>Tanggal Audit: 1 Juli 2026</span>
+                        <span>•</span>
+                        <span>Lokasi: Jakarta, Indonesia</span>
+                        <span>•</span>
+                        <span class="font-bold text-slate-700">Developed by Iman N Bajuasijadji</span>
+                      </div>
+                    </div>
+
+                    {/* Section 1: Pendahuluan */}
+                    <div class="space-y-4">
+                      <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-widest border-l-4 border-slate-900 pl-3">I. Pendahuluan</h3>
+                      <p class="text-xs text-slate-600 text-justify leading-relaxed">
+                        Manajemen Sumber Daya Manusia (MSDM) di tingkat nasional tengah menghadapi tantangan eksponensial berupa asimilasi kecerdasan buatan generatif, ketidakpastian geopolitik global, dan fragmentasi iklim kerja. Dokumen kertas kerja ini merangkum perbandingan kritis tiga sudut pandang standardisasi utama: standar fungsional transaksional masa lalu yang sangat luas mencakup 104 Unit Kompetensi (SKKNI No. 307/2014), standar integrasi berbasis performa kerja dengan 61 Unit Kompetensi (SKKNI No. 149/2020), dan draf ketangkasan resiliensi masa kini berbasis global tanpa batasan kode unit (Riset Kompetensi HCM Global). Hasil akhir analisis melahirkan 6 rumusan usulan unit kompetensi teranyar untuk diujikan pada tingkat sertifikasi strategis nasional.
+                      </p>
+                    </div>
+
+                    {/* Section 2: Matriks Komparasi Ringkas */}
+                    <div class="space-y-4">
+                      <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-widest border-l-4 border-slate-900 pl-3">II. Matriks Komparasi Tiga Standar</h3>
+                      <p class="text-xs text-slate-600">Pemetaan sumbu kematangan dan orientasi dari ketiga pendekatan standardisasi yang dianalisis:</p>
+                      
+                      <table class="w-full text-left border-collapse text-[10px] border border-slate-200">
+                        <thead>
+                          <tr class="bg-slate-50 font-bold border-b border-slate-300">
+                            <th class="p-2 border-r border-slate-200 w-1/4">Sumbu Fokus</th>
+                            <th class="p-2 border-r border-slate-200 w-1/4">SKKNI 307/2014 (104 Unit)</th>
+                            <th class="p-2 border-r border-slate-200 w-1/4">SKKNI 149/2020 (61 Unit)</th>
+                            <th class="p-2 w-1/4">HCM Global Research (Tanpa Kode)</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 text-slate-600">
+                          <tr>
+                            <td class="p-2 font-bold text-slate-800 border-r border-slate-200">Arsitektur Dasar</td>
+                            <td class="p-2 border-r border-slate-200">Administrasi, pencatatan berkas personalia, & kepatuhan normatif fungsional.</td>
+                            <td class="p-2 border-r border-slate-200">Manajemen Talenta terpadu menyokong pilar bisnis berkelanjutan.</td>
+                            <td class="p-2">Ketangkasan dinamis (Stagility) & tata kelola digital trust organisasi global.</td>
+                          </tr>
+                          <tr>
+                            <td class="p-2 font-bold text-slate-800 border-r border-slate-200">Kebutuhan Talenta</td>
+                            <td class="p-2 border-r border-slate-200">Taktis jangka pendek, rekrutmen fungsional transaksional.</td>
+                            <td class="p-2 border-r border-slate-200">Perencanaan suksesi & pemetaan karier bertahap sistematis.</td>
+                            <td class="p-2">Jalur reskilling micro-learning adaptif didorong AI personalisasi.</td>
+                          </tr>
+                          <tr>
+                            <td class="p-2 font-bold text-slate-800 border-r border-slate-200">Aspek Psikososial</td>
+                            <td class="p-2 border-r border-slate-200">Kepatuhan UU normatif sebatas administrasi fisik karyawan.</td>
+                            <td class="p-2 border-r border-slate-200">Kemitraan serikat pekerja, penyelesaian sengketa bipartite.</td>
+                            <td class="p-2">Keamanan Psikologis, pencegahan burnout, green HR & ESG.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="page-break"></div>
+
+                    {/* Section 3: Daftar Usulan Detail */}
+                    <div class="space-y-6 pt-8">
+                      <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-widest border-l-4 border-slate-900 pl-3">III. Usulan Formulasi Rumusan Unit Kompetensi Baru</h3>
+                      <p class="text-xs text-slate-600 text-justify">
+                        Berikut adalah draf detail usulan unit kompetensi teranyar yang diformulasikan dari hasil analisis gap komparatif. Seluruh unit di bawah ini dirancang untuk menjawab tuntutan zaman dengan mengedepankan efektivitas, keluwesan, dan keberlanjutan psikososial pekerja.
+                      </p>
+
+                      <div class="space-y-6">
+                        {proposedUnits.map((u, i) => (
+                          <div key={u.id} class="border-b border-slate-200 pb-6 last:border-0">
+                            <div class="flex items-center justify-between mb-2">
+                              <h4 class="text-xs font-bold text-slate-900 font-mono">
+                                {i + 1}. {u.code} — {u.title}
+                              </h4>
+                              <span class="bg-slate-100 text-slate-800 text-[8px] font-bold px-2 py-0.5 rounded border border-slate-200 uppercase">{u.level}</span>
+                            </div>
+                            <div class="pl-4 space-y-2 text-xs text-slate-600">
+                              <p><strong class="text-slate-800">Definisi Tugas:</strong> {u.description}</p>
+                              <p class="italic"><strong class="text-slate-800 font-normal">Rasional Urgensi:</strong> {u.rationale}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Section 4: Signature block - MODIFIED TO SHOW ONLY MENGESAHKAN & MANUALLY EDITABLE */}
+                    <div class="pt-12">
+                      <div class="flex justify-end text-center text-xs text-slate-500">
+                        <div class="w-64 space-y-16">
+                          <p>Mengesahkan,<br/><strong class="text-slate-900">{jabatanPengesah}</strong></p>
+                          <p class="font-bold underline text-slate-800">{namaPengesah}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </main>
+        </div>
+      );
+    };
+
+    // Render App inside div#root on load
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
